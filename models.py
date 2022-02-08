@@ -65,6 +65,8 @@ class Product(db.Model):
 
 
 def seedData():
+    # jkdasjkdajkdas
+    
     AddRoleIfNotExists("Admin")
     AddRoleIfNotExists("Customer")
     AddLoginIfNotExists("admin@example.com", "Hejsan123#",["Admin"])
