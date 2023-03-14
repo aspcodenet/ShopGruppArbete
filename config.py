@@ -1,6 +1,10 @@
+import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 class ConfigDebug():
-    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:hejsan123@localhost/shop20220128'    # File-based SQL database
+#   SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:hejsan123@localhost/shop20220128'    # File-based SQL database
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'database.db')
     SECRET_KEY = 'SDFA11#'
 
  # Flask-Mail SMTP server settings

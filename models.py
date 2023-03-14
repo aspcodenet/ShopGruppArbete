@@ -1,44 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 import barnum
-from flask_user import  UserMixin, UserManager
 from datetime import datetime
 
 db = SQLAlchemy()
 
 
-class User(db.Model, UserMixin):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    active = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
-
-    # User authentication information. The collation='NOCASE' is required
-    # to search case insensitively when USER_IFIND_MODE is 'nocase_collation'.
-    email = db.Column(db.String(255), nullable=False, unique=True)
-    email_confirmed_at = db.Column(db.DateTime()) 
-
-    password = db.Column(db.String(255), nullable=False, server_default='')
-
-    # User information
-    first_name = db.Column(db.String(100), nullable=False, server_default='')
-    last_name = db.Column(db.String(100), nullable=False, server_default='')
-
-    # Define the relationship to Role via UserRoles
-    roles = db.relationship('Role', secondary='user_roles')
-
-# Define the Role data-model
-class Role(db.Model):
-    __tablename__ = 'roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(50), unique=True)
-
-# Define the UserRoles association table
-class UserRoles(db.Model):
-    __tablename__ = 'user_roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
-    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
-
-user_manager = UserManager(None, db, User) 
 
 
 class Category(db.Model):
@@ -60,15 +26,11 @@ class Product(db.Model):
     UnitsOnOrder = db.Column(db.Integer, unique=False, nullable=False)
     ReorderLevel = db.Column(db.Integer, unique=False, nullable=False)
     Discontinued = db.Column(db.Boolean, unique=False, nullable=False)
-
+    Manufacturer= db.Column(db.String(40), unique=False, nullable=False)
 
 
 
 def seedData():
-    AddRoleIfNotExists("Admin")
-    AddRoleIfNotExists("Customer")
-    AddLoginIfNotExists("admin@example.com", "Hejsan123#",["Admin"])
-    AddLoginIfNotExists("customer@example.com", "Hejsan123#",["Customer"])
 
 
 
@@ -158,9 +120,6 @@ def seedData():
     addProduct(db,"Lakkalikri",	23,1	,"500 ml",	18.0000	,	57	,	0	,	20	,	0	)
     addProduct(db,"Original Frankfurter grne Soe",	12,2	,"12 boxes",	13.0000	,	32	,	0	,	15	,	0	)
     addProduct(db,"Handdesinfektion",	1,1	,"1",	12.0000	,	2	,	0	,	0	,	0	)
-
-
-
     db.session.commit()
 
 def mapNorthwindCategporyIdToThisDb(db,northwindCategporyId):
@@ -197,6 +156,7 @@ def addProduct(db,namn,supplierid, categoryid, quantityperunit,unitprice,unitsin
         c.UnitsOnOrder = unitsonorder
         c.ReorderLevel = reorderlevel
         c.Discontinued = discontinued
+        c.Manufacturer = barnum.create_company_name()
 
         cat = mapNorthwindCategporyIdToThisDb(db,categoryid)
         cat.Products.append(c)
@@ -215,25 +175,3 @@ def addCat(db,namn,descr):
 
 
 
-def AddRoleIfNotExists(namn:str): 
-    if Role.query.filter(Role.name == namn).first():
-        return
-    role = Role()
-    role.name = namn
-    db.session.add(role)
-    db.session.commit()
-
-
-def AddLoginIfNotExists(email:str, passwd:str, roles:list[str]):
-    if User.query.filter(User.email == email).first():
-        return
-    user = User()
-    user.email=email
-    user.email_confirmed_at=datetime.utcnow()
-    user.password=user_manager.hash_password(passwd)    
-    for roleName in roles:
-        role = Role.query.filter(Role.name == roleName).first()
-        user.roles.append(role)
-
-    db.session.add(user)
-    db.session.commit()
