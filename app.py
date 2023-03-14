@@ -3,7 +3,7 @@ from models import db, seedData
 from flask_migrate import Migrate, upgrade
 from areas.site.sitePages import siteBluePrint
 from areas.products.productPages import productBluePrint
-from flask_user import user_manager, current_user
+from flask_security import roles_accepted, auth_required, logout_user
 
 app = Flask(__name__)
 app.config.from_object('config.ConfigDebug')
@@ -20,7 +20,7 @@ app.register_blueprint(productBluePrint)
 if __name__  == "__main__":
     with app.app_context():
         upgrade()
-        seedData()
-    app.run()
+        seedData(app)
+        app.run()
 
 

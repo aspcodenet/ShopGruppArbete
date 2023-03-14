@@ -1,45 +1,21 @@
 from flask_sqlalchemy import SQLAlchemy
 import barnum
-from flask_user import  UserMixin, UserManager
 from datetime import datetime
+from flask_security import Security, SQLAlchemyUserDatastore, auth_required, hash_password
+from flask_security.models import fsqla_v3 as fsqla
 
 db = SQLAlchemy()
 
 
-class User(db.Model, UserMixin):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    active = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
+fsqla.FsModels.set_db_info(db)
 
-    # User authentication information. The collation='NOCASE' is required
-    # to search case insensitively when USER_IFIND_MODE is 'nocase_collation'.
-    email = db.Column(db.String(255), nullable=False, unique=True)
-    email_confirmed_at = db.Column(db.DateTime()) 
+class Role(db.Model, fsqla.FsRoleMixin):
+    pass
 
-    password = db.Column(db.String(255), nullable=False, server_default='')
+class User(db.Model, fsqla.FsUserMixin):
+    pass
 
-    # User information
-    first_name = db.Column(db.String(100), nullable=False, server_default='')
-    last_name = db.Column(db.String(100), nullable=False, server_default='')
-
-    # Define the relationship to Role via UserRoles
-    roles = db.relationship('Role', secondary='user_roles')
-
-# Define the Role data-model
-class Role(db.Model):
-    __tablename__ = 'roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(50), unique=True)
-
-# Define the UserRoles association table
-class UserRoles(db.Model):
-    __tablename__ = 'user_roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
-    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
-
-user_manager = UserManager(None, db, User) 
-
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
 class Category(db.Model):
     __tablename__= "Categories"
@@ -64,13 +40,20 @@ class Product(db.Model):
 
 
 
-def seedData():
-    # jkdasjkdajkdas
-    
-    AddRoleIfNotExists("Admin")
-    AddRoleIfNotExists("Customer")
-    AddLoginIfNotExists("admin@example.com", "Hejsan123#",["Admin"])
-    AddLoginIfNotExists("customer@example.com", "Hejsan123#",["Customer"])
+def seedData(app):
+    app.security = Security(app, user_datastore)
+    app.security.datastore.db.create_all()
+    if not app.security.datastore.find_role("Admin"):
+        app.security.datastore.create_role(name="Admin")
+    if not app.security.datastore.find_role("Staff"):
+        app.security.datastore.create_role(name="Staff")
+    if not app.security.datastore.find_user(email="admin@systementor.se"):
+        app.security.datastore.create_user(email="admin@systementor.se", password=hash_password("password"),roles=["Admin"])
+    if not app.security.datastore.find_user(email="worker1@systementor.se"):
+        app.security.datastore.create_user(email="worker1@systementor.se", password=hash_password("password"),roles=["Staff"])
+    if not app.security.datastore.find_user(email="worker2@systementor.se"):
+        app.security.datastore.create_user(email="worker2@systementor.se", password=hash_password("password"),roles=["Staff"])
+    app.security.datastore.db.session.commit()
 
 
 
@@ -226,16 +209,3 @@ def AddRoleIfNotExists(namn:str):
     db.session.commit()
 
 
-def AddLoginIfNotExists(email:str, passwd:str, roles:list[str]):
-    if User.query.filter(User.email == email).first():
-        return
-    user = User()
-    user.email=email
-    user.email_confirmed_at=datetime.utcnow()
-    user.password=user_manager.hash_password(passwd)    
-    for roleName in roles:
-        role = Role.query.filter(Role.name == roleName).first()
-        user.roles.append(role)
-
-    db.session.add(user)
-    db.session.commit()
