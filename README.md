@@ -54,4 +54,4 @@ SHOPGRUPPARBETE
 │
 └───venv                     # Virtual environment folder for the project dependencies
 
-Test
+Test Azure 17
