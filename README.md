@@ -53,3 +53,5 @@ SHOPGRUPPARBETE
 │           formhelpers.html  # HTML to help with form elements
 │
 └───venv                     # Virtual environment folder for the project dependencies
+
+Test
