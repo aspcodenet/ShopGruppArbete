@@ -1,5 +1,6 @@
 import barnum
 from datetime import datetime
+from flask import Flask
 from flask_security import (auth_required,
                             hash_password,
                             RoleMixin,
@@ -8,7 +9,12 @@ from flask_security import (auth_required,
                             UserMixin
                             )
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import func, select
+from sqlalchemy.orm import (DeclarativeBase,
+                            Mapped,
+                            mapped_column,
+                            relationship
+                            )
 from typing import List
 
 class Base(DeclarativeBase):
@@ -85,7 +91,7 @@ class Subscriber(db.Model):
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
-def seedData(app):
+def seedData(app: Flask):
     app.security = Security(app, user_datastore)
     app.security.datastore.db.create_all()
     if not app.security.datastore.find_role("Admin"):
@@ -190,60 +196,72 @@ def seedData(app):
     addProduct(db,"Original Frankfurter grne Soe",	12,2	,"12 boxes",	13.0000	,	32	,	0	,	15	,	0	)
     addProduct(db,"Handdesinfektion",	1,1	,"1",	12.0000	,	2	,	0	,	0	,	0	)
 
-    db.session.commit()
+def mapNorthwindCategporyIdToThisDb(db: SQLAlchemy, northwind_category__id: int) -> int|None:
+    name = ""
+    if northwind_category__id == 1:
+        name = "Beverages"
+    if northwind_category__id == 2:
+        name = "Condiments"
+    if northwind_category__id == 3:
+        name = "Confections"
+    if northwind_category__id == 4:
+        name = "Dairy Products"
+    if northwind_category__id == 5:
+        name = "Grains/Cereals"
+    if northwind_category__id == 6:
+        name = "Meat/Poultry"
+    if northwind_category__id == 7:
+        name = "Produce"
+    if northwind_category__id == 8:
+        name = "Seafood"
 
-def mapNorthwindCategporyIdToThisDb(db,northwindCategporyId):
-    namn = ""
-    if northwindCategporyId == 1:
-        namn = "Beverages"
-    if northwindCategporyId == 2:
-        namn = "Condiments"
-    if northwindCategporyId == 3:
-        namn = "Confections"
-    if northwindCategporyId == 4:
-        namn = "Dairy Products"
-    if northwindCategporyId == 5:
-        namn = "Grains/Cereals"
-    if northwindCategporyId == 6:
-        namn = "Meat/Poultry"
-    if northwindCategporyId == 7:
-        namn = "Produce"
-    if northwindCategporyId == 8:
-        namn = "Seafood"
-
-    return Category.query.filter_by(CategoryName=namn).first()    
+    stmt = select(Category.CategoryID).where(Category.CategoryName == name)
+    return db.session.execute(stmt).first()
     
 
-def addProduct(db,namn,supplierid, categoryid, quantityperunit,unitprice,unitsinstock,unitsonorder,reorderlevel,discontinued):
-    a =  Product.query.filter_by(ProductName=namn).first()
+def addProduct(db: SQLAlchemy,
+               name: str,
+               supplier_id: int,
+               category_id: int,
+               quantity_per_unit: str,
+               unit_price: float,
+               units_in_stock: int,
+               units_on_order: int,
+               reorder_level: int,
+               discontinued: int
+               ) -> None:
+    stmt = select(Product).where(Product.ProductName == name)
+    a = db.session.execute(stmt).first()
     if a == None:
         c = Product()
-        c.ProductName = namn
-        c.SupplierID = supplierid
-        c.QuantityPerUnit = quantityperunit
-        c.UnitPrice = unitprice
-        c.UnitsInStock = unitsinstock
-        c.UnitsOnOrder = unitsonorder
-        c.ReorderLevel = reorderlevel
+        c.ProductName = name
+        c.SupplierID = supplier_id
+        c.CategoryId = mapNorthwindCategporyIdToThisDb(db, category_id)
+        c.QuantityPerUnit = quantity_per_unit
+        c.UnitPrice = unit_price
+        c.UnitsInStock = units_in_stock
+        c.UnitsOnOrder = units_on_order
+        c.ReorderLevel = reorder_level
         c.Discontinued = discontinued
 
-        cat = mapNorthwindCategporyIdToThisDb(db,categoryid)
-        cat.Products.append(c)
-        db.session.commit()
-
-def addCat(db,namn,descr):
-    a =  Category.query.filter_by(CategoryName=namn).first()
-    if a ==  None:
-        c = Category()
-        c.CategoryName = namn
-        c.Description = descr
         db.session.add(c)
         db.session.commit()
 
-def AddRoleIfNotExists(namn:str): 
-    if Role.query.filter(Role.name == namn).first():
+def addCat(db: SQLAlchemy, name: str, description: str) -> None:
+    stmt = select(Category).where(Category.CategoryName == name)
+    a = db.session.execute(stmt).first()
+    if a ==  None:
+        c = Category()
+        c.CategoryName = name
+        c.Description = description
+        db.session.add(c)
+        db.session.commit()
+
+def AddRoleIfNotExists(name: str) -> None:
+    stmt = select(Role).where(Role.name == name)
+    if db.session.execute(stmt).first():
         return
     role = Role()
-    role.name = namn
+    role.name = name
     db.session.add(role)
     db.session.commit()
