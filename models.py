@@ -67,6 +67,15 @@ class UserRole(db.Model):
     RoleID: Mapped[int] = mapped_column(db.Integer, db.ForeignKey(Role.id))
 
 
+class Newsletter(db.Model):
+    __tablename__ = 'Newsletters'
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    subject: Mapped[str] = mapped_column(db.String(100))            # Mirrors email subject line
+    content: Mapped[str] = mapped_column(db.String(2000))           # Mirrors email text content
+    last_edit: Mapped[datetime] = mapped_column(db.DateTime)
+    is_sent: Mapped[bool] = mapped_column(db.Boolean())
+    date_sent: Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
+
 class Subscriber(db.Model):
     __tablename__ = 'Subscribers'
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
