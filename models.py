@@ -7,7 +7,6 @@ from flask_security import (auth_required,
                             SQLAlchemyUserDatastore,
                             UserMixin
                             )
-# from flask_security.models import fsqla_v3 as fsqla
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from typing import List
@@ -17,7 +16,29 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-# fsqla.FsModels.set_db_info(db)
+
+class Category(db.Model):
+    __tablename__= "Categories"
+    CategoryID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    CategoryName: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
+    Description: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
+
+    Products: Mapped[List['Product']] = relationship('Product', backref='Category',lazy=True)
+
+
+class Product(db.Model):
+    __tablename__= "Products"
+    ProductID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    ProductName: Mapped[str] = mapped_column(db.String(40), unique=False, nullable=False)
+    SupplierID: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    CategoryId: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('Categories.CategoryID'), nullable=False)
+    QuantityPerUnit: Mapped[str] = mapped_column(db.String(20), unique=False, nullable=False)
+    UnitPrice: Mapped[float] = mapped_column(db.Float, unique=False, nullable=False)
+    UnitsInStock: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    UnitsOnOrder: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    ReorderLevel: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    Discontinued: Mapped[int] = mapped_column(db.Boolean, unique=False, nullable=False)
+
 
 class Role(db.Model, RoleMixin):
     __tablename__ = "roles"
@@ -43,33 +64,17 @@ class UserRole(db.Model):
     __tablename__ = 'user_roles'
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey(User.id))
-    RoleID: Mapped[int] = mapped_column(db.Integer, db.ForeignKey(Role.id))    
+    RoleID: Mapped[int] = mapped_column(db.Integer, db.ForeignKey(Role.id))
+
+
+class Subscriber(db.Model):
+    __tablename__ = 'Subscribers'
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    email: Mapped[str] = mapped_column(db.Integer, unique=True)
+    active: Mapped[bool] = mapped_column(db.Boolean())
 
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-
-
-class Category(db.Model):
-    __tablename__= "Categories"
-    CategoryID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    CategoryName: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
-    Description: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
-    Products: Mapped[List['Product']] = relationship('Product', backref='Category',lazy=True)
-
-
-class Product(db.Model):
-    __tablename__= "Products"
-    ProductID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    ProductName: Mapped[str] = mapped_column(db.String(40), unique=False, nullable=False)
-    SupplierID: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
-    CategoryId: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('Categories.CategoryID'), nullable=False)
-    QuantityPerUnit: Mapped[str] = mapped_column(db.String(20), unique=False, nullable=False)
-    UnitPrice: Mapped[float] = mapped_column(db.Float, unique=False, nullable=False)
-    UnitsInStock: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
-    UnitsOnOrder: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
-    ReorderLevel: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
-    Discontinued: Mapped[int] = mapped_column(db.Boolean, unique=False, nullable=False)
-
 
 def seedData(app):
     app.security = Security(app, user_datastore)
