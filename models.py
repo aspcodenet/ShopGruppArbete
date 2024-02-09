@@ -1,43 +1,74 @@
-from flask_sqlalchemy import SQLAlchemy
 import barnum
 from datetime import datetime
-from flask_security import Security, SQLAlchemyUserDatastore, auth_required, hash_password
-from flask_security.models import fsqla_v3 as fsqla
+from flask_security import (auth_required,
+                            hash_password,
+                            RoleMixin,
+                            Security,
+                            SQLAlchemyUserDatastore,
+                            UserMixin
+                            )
+# from flask_security.models import fsqla_v3 as fsqla
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from typing import List
 
-db = SQLAlchemy()
-
-
-fsqla.FsModels.set_db_info(db)
-
-class Role(db.Model, fsqla.FsRoleMixin):
+class Base(DeclarativeBase):
     pass
 
-class User(db.Model, fsqla.FsUserMixin):
-    pass
+db = SQLAlchemy(model_class=Base)
+
+# fsqla.FsModels.set_db_info(db)
+
+class Role(db.Model, RoleMixin):
+    __tablename__ = "roles"
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(50), unique=True, nullable=True)
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    active: Mapped[bool] = mapped_column(db.Boolean())
+    email: Mapped[str] = mapped_column(db.String(255), unique=True)
+    email_confirmed_at: Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
+    password: Mapped[str] = mapped_column(db.String(255))
+    first_name: Mapped[str] = mapped_column(db.String(100))
+    last_name: Mapped[str] = mapped_column(db.String(100))
+    fs_uniquifier: Mapped[str] = mapped_column(db.String(255), unique=True)
+
+    roles: Mapped[List['Role']] = relationship('Role', secondary='user_roles', backref='User')
+
+
+class UserRole(db.Model):
+    __tablename__ = 'user_roles'
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey(User.id))
+    RoleID: Mapped[int] = mapped_column(db.Integer, db.ForeignKey(Role.id))    
+
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
+
 class Category(db.Model):
     __tablename__= "Categories"
-    CategoryID = db.Column(db.Integer, primary_key=True)
-    CategoryName = db.Column(db.String(80), unique=False, nullable=False)
-    Description = db.Column(db.String(80), unique=False, nullable=False)
-    Products = db.relationship('Product', backref='Category',lazy=True)
-    
+    CategoryID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    CategoryName: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
+    Description: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
+    Products: Mapped[List['Product']] = relationship('Product', backref='Category',lazy=True)
+
+
 class Product(db.Model):
     __tablename__= "Products"
-    ProductID = db.Column(db.Integer, primary_key=True)
-    ProductName = db.Column(db.String(40), unique=False, nullable=False)
-    SupplierID = db.Column(db.Integer, unique=False, nullable=False)
-    CategoryId = db.Column(db.Integer, db.ForeignKey('Categories.CategoryID'), nullable=False)
-    QuantityPerUnit = db.Column(db.String(20), unique=False, nullable=False)
-    UnitPrice = db.Column(db.Float, unique=False, nullable=False)
-    UnitsInStock = db.Column(db.Integer, unique=False, nullable=False)
-    UnitsOnOrder = db.Column(db.Integer, unique=False, nullable=False)
-    ReorderLevel = db.Column(db.Integer, unique=False, nullable=False)
-    Discontinued = db.Column(db.Boolean, unique=False, nullable=False)
-
-
+    ProductID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    ProductName: Mapped[str] = mapped_column(db.String(40), unique=False, nullable=False)
+    SupplierID: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    CategoryId: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('Categories.CategoryID'), nullable=False)
+    QuantityPerUnit: Mapped[str] = mapped_column(db.String(20), unique=False, nullable=False)
+    UnitPrice: Mapped[float] = mapped_column(db.Float, unique=False, nullable=False)
+    UnitsInStock: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    UnitsOnOrder: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    ReorderLevel: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    Discontinued: Mapped[int] = mapped_column(db.Boolean, unique=False, nullable=False)
 
 
 def seedData(app):
@@ -48,14 +79,15 @@ def seedData(app):
     if not app.security.datastore.find_role("Staff"):
         app.security.datastore.create_role(name="Staff")
     if not app.security.datastore.find_user(email="admin@systementor.se"):
-        app.security.datastore.create_user(email="admin@systementor.se", password=hash_password("password"),roles=["Admin"])
+        first_name, last_name = barnum.create_name()
+        app.security.datastore.create_user(email="admin@systementor.se", password=hash_password("password"),roles=["Admin"], first_name = first_name, last_name = last_name, email_confirmed_at = datetime.now())
     if not app.security.datastore.find_user(email="worker1@systementor.se"):
-        app.security.datastore.create_user(email="worker1@systementor.se", password=hash_password("password"),roles=["Staff"])
+        first_name, last_name = barnum.create_name()
+        app.security.datastore.create_user(email="worker1@systementor.se", password=hash_password("password"),roles=["Staff"], first_name = first_name, last_name = last_name, email_confirmed_at = datetime.now())
     if not app.security.datastore.find_user(email="worker2@systementor.se"):
-        app.security.datastore.create_user(email="worker2@systementor.se", password=hash_password("password"),roles=["Staff"])
+        first_name, last_name = barnum.create_name()
+        app.security.datastore.create_user(email="worker2@systementor.se", password=hash_password("password"),roles=["Staff"], first_name = first_name, last_name = last_name, email_confirmed_at = datetime.now())
     app.security.datastore.db.session.commit()
-
-
 
     addCat(db,  "Beverages",	"Soft drinks, coffees, teas, beers, and ales")        
     addCat(db,  "Condiments",	"Sweet and savory sauces, relishes, spreads, and seasonings")        
@@ -144,8 +176,6 @@ def seedData(app):
     addProduct(db,"Original Frankfurter grne Soe",	12,2	,"12 boxes",	13.0000	,	32	,	0	,	15	,	0	)
     addProduct(db,"Handdesinfektion",	1,1	,"1",	12.0000	,	2	,	0	,	0	,	0	)
 
-
-
     db.session.commit()
 
 def mapNorthwindCategporyIdToThisDb(db,northwindCategporyId):
@@ -187,8 +217,6 @@ def addProduct(db,namn,supplierid, categoryid, quantityperunit,unitprice,unitsin
         cat.Products.append(c)
         db.session.commit()
 
-
-
 def addCat(db,namn,descr):
     a =  Category.query.filter_by(CategoryName=namn).first()
     if a ==  None:
@@ -198,8 +226,6 @@ def addCat(db,namn,descr):
         db.session.add(c)
         db.session.commit()
 
-
-
 def AddRoleIfNotExists(namn:str): 
     if Role.query.filter(Role.name == namn).first():
         return
@@ -207,5 +233,3 @@ def AddRoleIfNotExists(namn:str):
     role.name = namn
     db.session.add(role)
     db.session.commit()
-
-
