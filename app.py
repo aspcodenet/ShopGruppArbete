@@ -6,6 +6,8 @@ from flask_migrate import Migrate, upgrade
 from flask_security import roles_accepted, auth_required, logout_user
 from models import db, seedData
 from os import environ
+import click
+from flask.cli import with_appcontext
 
 load_dotenv()
 
@@ -25,8 +27,14 @@ migrate = Migrate(app,db)
 app.register_blueprint(siteBluePrint)
 app.register_blueprint(productBluePrint)
 
+@click.command('seed-db')
+@with_appcontext
+def seed_db_command():
+    """Seeds the database."""
+    seedData(app)
+    click.echo('Database seeded.')
+
+app.cli.add_command(seed_db_command)
+
 if __name__  == "__main__":
-    with app.app_context():
-        upgrade()
-        seedData(app)
-        app.run()
+    app.run()
