@@ -22,7 +22,6 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-
 class Category(db.Model):
     __tablename__= "Categories"
     CategoryID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
@@ -216,7 +215,8 @@ def mapNorthwindCategporyIdToThisDb(db: SQLAlchemy, northwind_category__id: int)
         name = "Seafood"
 
     stmt = select(Category.CategoryID).where(Category.CategoryName == name)
-    return db.session.execute(stmt).first()
+    result = db.session.execute(stmt).scalar()  # Use scalar() to get a single value
+    return result
     
 
 def addProduct(db: SQLAlchemy,
