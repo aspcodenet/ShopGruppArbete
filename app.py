@@ -1,18 +1,18 @@
+from os import environ
+
 import click
-from flask import Flask, request, current_app
-from flask_migrate import Migrate
-from flask_security import SQLAlchemyUserDatastore, Security
-from models import db, User, Role, seedData
 from areas.products.productPages import productBluePrint
 from areas.site.sitePages import siteBluePrint
-from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request, current_app
 from flask.cli import with_appcontext
 from flask_mail import Mail
-from flask_migrate import Migrate, upgrade
+from flask_migrate import Migrate
+from flask_security import SQLAlchemyUserDatastore, Security
 from flask_security import roles_accepted, auth_required, logout_user
-from models import db, seedData
-from os import environ
+
+from dotenv import load_dotenv
+from extensions import mail
+from models import db, User, Role, seedData
 
 load_dotenv()
 
@@ -25,17 +25,18 @@ app.config['SECURITY_PASSWORD_SALT'] = environ.get('SECURITY_PASSWORD_SALT')
 
 app.config['MAIL_SERVER'] = environ.get('MAIL_SERVER')
 app.config['MAIL_PORT'] = environ.get('MAIL_PORT')
-app.config['MAIL_USE_SSL'] = environ.get('MAIL_USE_SSL')
-app.config['MAIL_USE_TLS'] = environ.get('MAIL_USE_TLS')
-app.config['MAIL_USERNAME'] = environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = environ.get('MAIL_DEFAULT_SENDER')
+# app.config['MAIL_USE_SSL'] = environ.get('MAIL_USE_SSL')      Only used in production
+# app.config['MAIL_USE_TLS'] = environ.get('MAIL_USE_TLS')      |
+# app.config['MAIL_USERNAME'] = environ.get('MAIL_USERNAME')    |
+# app.config['MAIL_PASSWORD'] = environ.get('MAIL_PASSWORD')    V
 
 app.config['TEMP_ADMIN_ACCESS'] = True  # Temporary flag for admin access without login
 
 db.app = app
 db.init_app(app)
 migrate = Migrate(app,db)
-mail = Mail(app)
+mail.init_app(app)
 # user_manager.app = app
 # user_manager.init_app(app,db,User)
 
