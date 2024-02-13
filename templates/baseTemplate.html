@@ -170,9 +170,9 @@
                 <div class="col-md-12">
                     <div class="newsletter">
                         <p>Sign Up for the <strong>NEWSLETTER</strong></p>
-                        <form>
-                            <input class="input" type="email" placeholder="Enter Your Email">
-                            <button class="newsletter-btn"><i class="fa fa-envelope"></i> Subscribe</button>
+                        <form id="newsletterForm">
+                            <input id="emailInput" class="input" type="email" placeholder="Enter Your Email">
+                            <button class="newsletter-btn" type="submit"><i class="fa fa-envelope"></i> Subscribe</button>
                         </form>
                         <ul class="newsletter-follow">
                             <li>
@@ -299,6 +299,27 @@
     <script src="{{ url_for('static',filename='js/jquery.zoom.min.js') }}"></script>
     <script src="{{ url_for('static',filename='js/main.js') }}"></script>
     {% block scripts %}{% endblock %}                 
- 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#newsletterForm').submit(function(event){
+                event.preventDefault();
+                var email = $('#emailInput').val();
+                $.ajax({
+                    url: '/subscribe',
+                    method: 'POST',
+                    data: {email: email},
+                    success: function(response){
+                        alert(response);
+                    },
+                    error: function(xhr, status, error){
+                    
+                        console.error(error); 
+                        alert('An error occurred. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>s

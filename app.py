@@ -27,6 +27,6 @@ app.register_blueprint(productBluePrint)
 
 if __name__  == "__main__":
     with app.app_context():
-        upgrade()
+        #upgrade()
         seedData(app)
         app.run()
