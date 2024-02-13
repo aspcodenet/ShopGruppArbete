@@ -31,6 +31,15 @@
                 </ul>
                 <ul class="header-links pull-right">
                     <partial name="_LoginPartial" />
+                    {% if not current_user %}
+                    <li><a href="#">Register</a></li>
+                    <li><a href="#">Login</a></li>
+                    {% else %}
+                    <li><a href="#">Logout</a></li>
+                    {% endif %}
+                    <li><a href="{{ url_for('admin.admin') }}">Admin</a></li>
+                    <!-- {% if 'Admin' in user_roles %} Add when login is implemented and shift up-->
+                    <!-- {% endif %} -->
                 </ul>
             </div>
         </div>
@@ -44,7 +53,7 @@
                     <!-- LOGO -->
                     <div class="col-md-3">
                         <div class="header-logo">
-                            <a href="#" class="logo">
+                            <a href="{{ url_for('product.index') }}" class="logo">
                                 <img src="{{ url_for('static', filename='img/logo.png') }}" alt="">
                             </a>
                         </div>

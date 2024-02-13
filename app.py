@@ -1,9 +1,11 @@
 from flask import Flask, request, current_app
+from flask_login import current_user
 from flask_migrate import Migrate
 from flask_security import SQLAlchemyUserDatastore, Security
 from models import db, User, Role, seedData
 from areas.products.productPages import productBluePrint
 from areas.site.sitePages import siteBluePrint
+from areas.admin.admin_pages import admin_blueprint
 from dotenv import load_dotenv
 import click
 from flask.cli import with_appcontext
@@ -29,6 +31,7 @@ migrate = Migrate(app,db)
 # Register blueprints
 app.register_blueprint(siteBluePrint)
 app.register_blueprint(productBluePrint)
+app.register_blueprint(admin_blueprint)
 
 # Seeding Command
 @click.command('seed-db')
