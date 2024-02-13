@@ -22,7 +22,6 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-
 class Category(db.Model):
     __tablename__= "Categories"
     CategoryID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
@@ -82,10 +81,11 @@ class Newsletter(db.Model):
     is_sent: Mapped[bool] = mapped_column(db.Boolean())
     date_sent: Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
+
 class Subscriber(db.Model):
     __tablename__ = 'Subscribers'
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    email: Mapped[str] = mapped_column(db.Integer, unique=True)
+    email: Mapped[str] = mapped_column(db.String(255), unique=True)
     active: Mapped[bool] = mapped_column(db.Boolean())
 
 
@@ -216,7 +216,8 @@ def mapNorthwindCategporyIdToThisDb(db: SQLAlchemy, northwind_category__id: int)
         name = "Seafood"
 
     stmt = select(Category.CategoryID).where(Category.CategoryName == name)
-    return db.session.execute(stmt).first()
+    result = db.session.execute(stmt).scalar()  # Use scalar() to get a single value
+    return result
     
 
 def addProduct(db: SQLAlchemy,

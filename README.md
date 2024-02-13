@@ -3,6 +3,7 @@
 
 
 SHOPGRUPPARBETE
+│   .env                     # Database environment variables, like SQLALCHEMY_DATABASE_URI, SECRET_KEY etc.
 │   .gitignore               # Specifies intentionally untracked files to ignore
 │   app.py                   # Main entry point for the Flask application
 │   azure-pipelines.yml      # Configuration file for Azure DevOps CI/CD pipeline
@@ -54,4 +55,59 @@ SHOPGRUPPARBETE
 │
 └───venv                     # Virtual environment folder for the project dependencies
 
-Test Azure Again 17
+###################################
+        Initial Setup:
+###################################
+
+# Install Python: 
+
+Make sure Python is installed on the system. Preferably, use a version that is compatible with the application, such as Python 3.8 or newer.
+
+# Set Up a Virtual Environment:
+    To keep things concise let's use Bash Terminal
+
+    1) Navigate to the project directory in the terminal.
+        Run *python3 -m venv venv* to create a virtual environment named venv.
+
+    2) Activate the virtual environment:
+        On Windows:     *venv\Scripts\activate*
+        On macOS/Linux: *source venv/bin/activate*
+
+# Install Required Packages:
+
+    1) Ensure pip is up to date: pip install --upgrade pip.
+
+    2)Install the required packages: pip install -r requirements.txt.
+
+# Set Up Environment Variables:
+
+    1) Create a .env file in the project root with the necessary environment variables, like SQLALCHEMY_DATABASE_URI, SECRET_KEY, and others.
+        If you are confused as to how this is formatted navigate to: dotenv_layout.txt 
+
+# Database Specific:
+    
+    1) Install Database System:
+        Install the specific database system you are using, in this case MySQL.
+    
+    2) Configure Database:
+        Set up a new database schema through the database’s management tool.
+        
+        Ensure the SQLALCHEMY_DATABASE_URI in your .env file matches the database credentials and schema.
+
+# Run Migrations:
+
+    1) Execute flask db init to initialize the migration directory (only once for setup).
+    2) Run *flask db migrate -m "Initial migration."* to create the initial migration files. 
+        The Quotes ("Initial migration.") can have whichever message generally highlighting what the specific migration implies 
+    3) Apply the migrations to the database with *flask db upgrade*.
+
+# Seeding the Database:
+    1) Seed the Database:
+        Use the custom CLI command provided in your app.py to seed the database: flask seed-db.
+
+# Final Checks:
+    1) Test the Application:
+        Start the application: *flask run* or *python app.py*.
+        Navigate to http://localhost:5000 in a web browser to see if the site is running correctly.
+    2) Check Interpreter path:
+        Use virtual environment path for python.
