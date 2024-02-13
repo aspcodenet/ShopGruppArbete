@@ -23,6 +23,13 @@ app.config['SECRET_KEY'] = environ.get('SECRET_KEY')
 app.config['SECURITY_REGISTERABLE'] = environ.get('SECURITY_REGISTERABLE')
 app.config['SECURITY_PASSWORD_SALT'] = environ.get('SECURITY_PASSWORD_SALT')
 
+app.config['MAIL_SERVER'] = environ.get('MAIL_SERVER')
+app.config['MAIL_PORT'] = environ.get('MAIL_PORT')
+app.config['MAIL_USE_SSL'] = environ.get('MAIL_USE_SSL')
+app.config['MAIL_USE_TLS'] = environ.get('MAIL_USE_TLS')
+app.config['MAIL_USERNAME'] = environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = environ.get('MAIL_PASSWORD')
+
 app.config['TEMP_ADMIN_ACCESS'] = True  # Temporary flag for admin access without login
 
 db.app = app
