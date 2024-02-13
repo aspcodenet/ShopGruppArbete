@@ -82,17 +82,12 @@ class Newsletter(db.Model):
     is_sent: Mapped[bool] = mapped_column(db.Boolean())
     date_sent: Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
-# class Subscriber(db.Model):
-#     __tablename__ = 'Subscribers'
-#     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-#     email: Mapped[str] = mapped_column(db.String(255), unique=True)
-#     active: Mapped[bool] = mapped_column(db.Boolean())
+
 class Subscriber(db.Model):
     __tablename__ = 'Subscribers'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), unique=True)
-    active = db.Column(db.Boolean, default=True) #När användaren skriver upp sig då är hen aktivt och vill få newsletter
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    email: Mapped[str] = mapped_column(db.String(255), unique=True)
+    active: Mapped[bool] = mapped_column(db.Boolean())
 
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
