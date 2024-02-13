@@ -20,3 +20,5 @@ class ConfigDebug():
    USER_EMAIL_SENDER_EMAIL = "noreply@example.com"    
 
    SECURITY_PASSWORD_SALT = "341231232"
+   
+   # TEMP_ADMIN_ACCESS = True  # Temporary flag for development purposes

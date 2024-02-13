@@ -11,3 +11,6 @@ def getProduct(id):
 
 def getTrendingProducts():
     return Product.query.order_by(Product.ProductID.desc()).paginate(page=1,per_page=8,error_out=False).items
+
+def getAllCategories():
+    return Category.query.all()

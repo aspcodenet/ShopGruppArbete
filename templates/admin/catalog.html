@@ -1,0 +1,15 @@
+<!-- admin/catalog.html -->
+{% extends "baseTemplate.html" %}
+{% block maincontent %}
+<h1>Admin Catalog</h1>
+<div>
+    {% for category in categories %}
+    <h2>{{ category.CategoryName }}</h2>
+    <ul>
+        {% for product in category.Products %}
+        <li>{{ product.ProductName }} - ${{ product.UnitPrice }}</li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+</div>
+{% endblock %}

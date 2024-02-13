@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template
-from .services import getCategory, getTrendingCategories, getProduct, getTrendingProducts
+from flask import Blueprint, render_template, current_app
+from flask_security import roles_accepted
+from .services import getCategory, getTrendingCategories, getProduct, getTrendingProducts, getAllCategories
 
 
 
@@ -24,3 +25,11 @@ def category(id) -> str:
 def product(id) -> str:
     product = getProduct(id)
     return render_template('products/product.html',product=product)
+
+@productBluePrint.route('/admin/catalog')
+def admin_catalog():
+    if not current_app.config.get('TEMP_ADMIN_ACCESS', False):
+        return "Access Denied", 403
+
+    categories = getAllCategories()
+    return render_template('admin/catalog.html', categories=categories)
