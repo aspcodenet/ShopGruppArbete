@@ -27,6 +27,7 @@ class Category(db.Model):
     CategoryID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     CategoryName: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
     Description: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
+    Image: Mapped[str] = mapped_column(db.String(100), unique=True, nullable=True)
 
     Products: Mapped[List['Product']] = relationship('Product', backref='Category',lazy=True)
 
@@ -81,10 +82,11 @@ class Newsletter(db.Model):
     is_sent: Mapped[bool] = mapped_column(db.Boolean())
     date_sent: Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
+
 class Subscriber(db.Model):
     __tablename__ = 'Subscribers'
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    email: Mapped[str] = mapped_column(db.Integer, unique=True)
+    email: Mapped[str] = mapped_column(db.String(255), unique=True)
     active: Mapped[bool] = mapped_column(db.Boolean())
 
 
