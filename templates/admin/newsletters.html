@@ -17,7 +17,7 @@
         {% else %}
         <td><i class="fa fa-square-o" aria-hidden="true"></i></td>
         {% endif %}
-        <td><a href="{{ url_for('admin.edit_newsletter', newsletter.id) }}"></a></td>
+        <td><a href="{{ url_for('admin.edit_newsletter', newsletter = newsletter.id) }}"></a></td>
     </tr>
     {% endfor %}
 </table>

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 
-from .admin_services import get_newsletter
+from .admin_services import get_all_newsletter, get_newsletter
 
 admin_blueprint = Blueprint('admin', __name__)
 
@@ -10,7 +10,9 @@ def admin() -> str:
 
 @admin_blueprint.route('/newsletters')
 def manage_newsletters() -> str:
-    return render_template('admin/newsletters.html')
+    all_newsletters = get_all_newsletter()
+    return render_template('admin/newsletters.html',
+                           newsletters = all_newsletters)
 
 @admin_blueprint.route('/newsletter/<newsletter_id>')
 def edit_newsletter(newsletter_id: int) -> str:
