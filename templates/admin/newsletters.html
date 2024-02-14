@@ -1,0 +1,32 @@
+{% extends "baseTemplate.html" %}
+{% block maincontent %}
+<h1>Newsletters</h1>
+<table>
+    <tr>
+        <th>Subject</th>
+        <th>Last edit</th>
+        <th>Sent</th>
+        <th>Edit</th>
+    </tr>
+    {% for newsletter in newsletters %}
+    <tr>
+        <td>{{ newsletter.subject }}</td>
+        <td>{{ newsletter.last_edit }}</td>
+        {% if newsletter.is_sent %}
+        <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
+        {% else %}
+        <td><i class="fa fa-square-o" aria-hidden="true"></i></td>
+        {% endif %}
+        <td><a href="{{ url_for('admin.edit_newsletter', newsletter.id) }}"></a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+
+id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    subject: Mapped[str] = mapped_column(db.String(100))            # Mirrors email subject line
+    content: Mapped[str] = mapped_column(db.String(2000))           # Mirrors email text content
+    last_edit: Mapped[datetime] = mapped_column(db.DateTime)
+    is_sent: Mapped[bool] = mapped_column(db.Boolean())
+    date_sent: M
