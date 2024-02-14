@@ -31,16 +31,16 @@ def add_product():
     if request.method == 'POST':
         product_name = request.form.get('product_name')
         category_id = request.form.get('category_id')
+#        supplier_id = 1 
         unit_price = request.form.get('unit_price')
         units_in_stock = request.form.get('units_in_stock')
-        
+        # Call addProduct with the supplier_id
         addProduct(product_name, category_id, unit_price, units_in_stock)
-        
         flash('Product added successfully!')
         return redirect(url_for('.admin_catalog'))
     else:
-        # GET request: display the form
-        categories = getAllCategories()  
+        categories = getAllCategories()
+#        suppliers = getAllSuppliers()  
         return render_template('admin/add_product.html', categories=categories)
 
 @productBluePrint.route('/delete_product/<int:id>', methods=['GET', 'POST'])
