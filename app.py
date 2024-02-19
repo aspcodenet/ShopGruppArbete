@@ -1,26 +1,20 @@
-from os import environ
 
 import click
-from areas.products.productPages import productBluePrint
-from areas.site.sitePages import siteBluePrint
 from flask import Flask, request, current_app
-from flask_login import current_user
 from flask.cli import with_appcontext
+from flask_login import current_user
 from flask_mail import Mail
 from flask_migrate import Migrate, upgrade
 from flask_security import SQLAlchemyUserDatastore, Security
-from flask_security import roles_accepted, auth_required, logout_user
+from flask_security import auth_required, logout_user, roles_accepted
+from os import environ
 
+from areas.admin.admin_pages import admin_blueprint
+from areas.products.productPages import productBluePrint
+from areas.site.sitePages import siteBluePrint
 from dotenv import load_dotenv
 from extensions import mail
 from models import db, User, Role, seedData
-from areas.products.productPages import productBluePrint
-from areas.site.sitePages import siteBluePrint
-from areas.admin.admin_pages import admin_blueprint
-from dotenv import load_dotenv
-import click
-from flask.cli import with_appcontext
-from os import environ
 
 load_dotenv()
 
@@ -75,5 +69,5 @@ def before_request():
 if __name__  == "__main__":
     with app.app_context():
         upgrade()
+        seedData(app)
     app.run(debug=True)
-    
