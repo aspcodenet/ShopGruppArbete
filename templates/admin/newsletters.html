@@ -24,13 +24,13 @@
             </a>
         </td>
         {% if newsletter.is_sent %}
+        <td></td>
+        {% else %}
         <td class="text-center">
-            <a href="#">
+            <a href="{{ url_for('admin.send_newsletter', newsletter_id = newsletter.id) }}">
                 <i class="fa fa-paper-plane" aria-hidden="true"></i>
             </a>
         </td>
-        {% else %}
-        <td></td>
         {% endif %}
     </tr>
     {% endfor %}
