@@ -1,12 +1,13 @@
 {% extends "baseTemplate.html" %}
 {% block maincontent %}
 <h1>Newsletters</h1>
-<table>
+<table class="table">
     <tr>
         <th>Subject</th>
         <th>Last edit</th>
-        <th>Sent</th>
-        <th>Edit</th>
+        <th class="text-center">Sent</th>
+        <th class="text-center">Edit</th>
+        <th class="text-center">Send</th>
     </tr>
     {% for newsletter in newsletters %}
     <tr>
@@ -15,18 +16,23 @@
         {% if newsletter.is_sent %}
         <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
         {% else %}
-        <td><i class="fa fa-square-o" aria-hidden="true"></i></td>
+        <td class="text-center"><i class="fa fa-square-o" aria-hidden="true"></i></td>
         {% endif %}
-        <td><a href="{{ url_for('admin.edit_newsletter', newsletter = newsletter.id) }}"></a></td>
+        <td class="text-center">
+            <a href="{{ url_for('admin.edit_newsletter', newsletter_id = newsletter.id) }}">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+            </a>
+        </td>
+        {% if newsletter.is_sent %}
+        <td class="text-center">
+            <a href="#">
+                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+            </a>
+        </td>
+        {% else %}
+        <td></td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>
-
 {% endblock %}
-
-id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-    subject: Mapped[str] = mapped_column(db.String(100))            # Mirrors email subject line
-    content: Mapped[str] = mapped_column(db.String(2000))           # Mirrors email text content
-    last_edit: Mapped[datetime] = mapped_column(db.DateTime)
-    is_sent: Mapped[bool] = mapped_column(db.Boolean())
-    date_sent: M
