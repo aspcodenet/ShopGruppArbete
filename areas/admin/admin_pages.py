@@ -8,13 +8,14 @@ admin_blueprint = Blueprint('admin', __name__)
 def admin() -> str:
     return render_template('admin/admin.html')
 
-@admin_blueprint.route('/newsletters')
+@admin_blueprint.route('/admin/newsletters')
 def manage_newsletters() -> str:
+    
     all_newsletters = get_all_newsletter()
     return render_template('admin/newsletters.html',
                            newsletters = all_newsletters)
 
-@admin_blueprint.route('/newsletter/<newsletter_id>')
+@admin_blueprint.route('/admin/newsletter/<newsletter_id>')
 def edit_newsletter(newsletter_id: int) -> str:
     newsletter = get_newsletter(newsletter_id)
     return render_template('admin/newsletter.html',
