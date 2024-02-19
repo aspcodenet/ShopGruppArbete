@@ -37,9 +37,9 @@
                     {% else %}
                     <li><a href="#">Logout</a></li>
                     {% endif %}
+                    {# {% if 'Admin' in user_roles %} Add when login is implemented#}
                     <li><a href="{{ url_for('admin.admin') }}">Admin</a></li>
-                    <!-- {% if 'Admin' in user_roles %} Add when login is implemented and shift up-->
-                    <!-- {% endif %} -->
+                    {# {% endif %} #}
                 </ul>
             </div>
         </div>
