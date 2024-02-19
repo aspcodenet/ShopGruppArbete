@@ -27,6 +27,7 @@ class Category(db.Model):
     CategoryID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     CategoryName: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
     Description: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
+    Image: Mapped[str] = mapped_column(db.String(100), unique=True, nullable=True)
 
     Products: Mapped[List['Product']] = relationship('Product', backref='Category',lazy=True)
 

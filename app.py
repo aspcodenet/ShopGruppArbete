@@ -4,15 +4,23 @@ import click
 from areas.products.productPages import productBluePrint
 from areas.site.sitePages import siteBluePrint
 from flask import Flask, request, current_app
+from flask_login import current_user
 from flask.cli import with_appcontext
 from flask_mail import Mail
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 from flask_security import SQLAlchemyUserDatastore, Security
 from flask_security import roles_accepted, auth_required, logout_user
 
 from dotenv import load_dotenv
 from extensions import mail
 from models import db, User, Role, seedData
+from areas.products.productPages import productBluePrint
+from areas.site.sitePages import siteBluePrint
+from areas.admin.admin_pages import admin_blueprint
+from dotenv import load_dotenv
+import click
+from flask.cli import with_appcontext
+from os import environ
 
 load_dotenv()
 
@@ -43,6 +51,7 @@ mail.init_app(app)
 # Register blueprints
 app.register_blueprint(siteBluePrint)
 app.register_blueprint(productBluePrint)
+app.register_blueprint(admin_blueprint)
 
 # Seeding Command
 @click.command('seed-db')
@@ -64,5 +73,6 @@ def before_request():
             return "Access Denied", 403
 
 if __name__  == "__main__":
-    app.run()
+    upgrade()
+    app.run(debug=True)
     
