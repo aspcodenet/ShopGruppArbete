@@ -11,7 +11,6 @@ def admin() -> str:
 
 @admin_blueprint.route('/admin/newsletters')
 def manage_newsletters() -> str:
-    
     all_newsletters = get_all_newsletter()
     return render_template('admin/newsletters.html',
                            newsletters = all_newsletters)

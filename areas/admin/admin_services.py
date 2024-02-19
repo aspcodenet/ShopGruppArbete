@@ -1,4 +1,5 @@
 from datetime import datetime
+from flask import flash
 from flask_mail import Message
 from sqlalchemy import select
 
@@ -19,8 +20,11 @@ def send_newsletter(newsletter_id: int) -> None:
     stmt = select(Newsletter).where(Newsletter.id == newsletter_id)
     newsletter = db.session.execute(stmt).scalar()
     if not newsletter:
+        flash(f'Newsletter #{newsletter_id} not found', 'error')
         return
-    if not newsletter.is_sent:
+    if newsletter.is_sent:
+        flash(f'Newsletter #{newsletter_id} already sent', 'warning')
+    else:
         stmt = select(Subscriber.email).where(Subscriber.active)
         active_subscriber_emails = db.session.execute(stmt).scalars().all()
         with mail.connect() as conn:
@@ -34,3 +38,5 @@ def send_newsletter(newsletter_id: int) -> None:
         newsletter.is_sent = True
         db.session.add(newsletter)
         db.session.commit()
+        flash(f'Newsletter #{newsletter_id} sent', 'message')
+    
