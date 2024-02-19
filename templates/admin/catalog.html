@@ -50,18 +50,6 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination">
-                            {% if paginated_products[category.CategoryID].has_prev %}
-                            <li class="page-item"><a class="page-link" href="{{ url_for('product.admin_catalog', page_num=paginated_products[category.CategoryID].prev_num, category_id=category.CategoryID) }}"
-                                >Previous</a></li>
-                            {% endif %}
-                            {% if paginated_products[category.CategoryID].has_next %}
-                            <li class="page-item"><a class="page-link" href="{{ url_for('product.admin_catalog', page_num=paginated_products[category.CategoryID].prev_num, category_id=category.CategoryID) }}"
-                                >Next</a></li>
-                            {% endif %}
-                        </ul>
-                    </nav>
                 </div>
             </div>
         </div>

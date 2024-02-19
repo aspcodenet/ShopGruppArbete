@@ -61,3 +61,4 @@ def deleteProduct(id):
     if product:
         db.session.delete(product)
         db.session.commit()
+        

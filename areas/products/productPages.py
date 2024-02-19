@@ -12,7 +12,6 @@ from .services import (getCategory,
                        updateProduct, 
                        deleteCategory, 
                        deleteProduct, 
-                       get_paginated_products_by_category
                        )
 
 productBluePrint = Blueprint('product', __name__)
@@ -39,12 +38,8 @@ def admin_catalog():
         return "Access Denied", 403
     
     categories = getAllCategories()
-    paginated_products = {}
-    for category in categories:
-        page = request.args.get(f'page_{category.CategoryID}', 1, type=int)
-        paginated_products[category.CategoryID] = get_paginated_products_by_category(category.CategoryID, page)
 
-    return render_template('admin/catalog.html', categories=categories, paginated_products=paginated_products)
+    return render_template('admin/catalog.html', categories=categories)
 
 
 @productBluePrint.route('/add_product', methods=['GET', 'POST'])
