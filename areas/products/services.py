@@ -15,6 +15,9 @@ def getTrendingProducts():
 def getAllCategories():
     return Category.query.all()
 
+# def getAllSuppliers():
+#     return Supplier.query.all()
+
 def addCategory(name, description):
     new_category = Category(CategoryName=name, Description=description)
     db.session.add(new_category)
@@ -58,3 +61,4 @@ def deleteProduct(id):
     if product:
         db.session.delete(product)
         db.session.commit()
+        
