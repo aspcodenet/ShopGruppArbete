@@ -73,6 +73,7 @@ def before_request():
             return "Access Denied", 403
 
 if __name__  == "__main__":
-    upgrade()
+    with app.app_context():
+        upgrade()
     app.run(debug=True)
     
