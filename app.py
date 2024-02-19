@@ -1,6 +1,6 @@
 from flask import Flask, request, current_app
 from flask_login import current_user
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 from flask_security import SQLAlchemyUserDatastore, Security
 from models import db, User, Role, seedData
 from areas.products.productPages import productBluePrint
@@ -53,5 +53,6 @@ def before_request():
             return "Access Denied", 403
 
 if __name__  == "__main__":
-    app.run()
+    upgrade()
+    app.run(debug=True)
     
