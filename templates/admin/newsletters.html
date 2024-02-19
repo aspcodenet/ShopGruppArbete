@@ -3,6 +3,7 @@
 <h1>Newsletters</h1>
 <table class="table">
     <tr>
+        <th>#</th>
         <th>Subject</th>
         <th>Last edit</th>
         <th class="text-center">Sent</th>
@@ -11,10 +12,11 @@
     </tr>
     {% for newsletter in newsletters %}
     <tr>
+        <td>{{ newsletter.id }}</td>
         <td>{{ newsletter.subject }}</td>
         <td>{{ newsletter.last_edit }}</td>
         {% if newsletter.is_sent %}
-        <td><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
+        <td class="text-center"><i class="fa fa-check-square-o" aria-hidden="true"></i></td>
         {% else %}
         <td class="text-center"><i class="fa fa-square-o" aria-hidden="true"></i></td>
         {% endif %}
