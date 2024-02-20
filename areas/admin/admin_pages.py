@@ -12,7 +12,7 @@ def admin() -> str:
     return render_template('admin/admin.html')
 
 @admin_blueprint.route('/admin/newsletters')
-def manage_newsletters() -> str:
+def newsletters() -> str:
     all_newsletters = get_all_newsletter()
     return render_template('admin/newsletters.html',
                            newsletters = all_newsletters)
@@ -33,10 +33,6 @@ def edit_newsletter(newsletter_id: int = None) -> str:
 
     form = EditNewsletter(subject = newsletter.subject,
                           content = newsletter.content)
-    # if form.validate_on_submit():
-    #     flash('Email updated!', 'info')
-    # else:
-    #     flash('Email not updated!', 'warning')
     return render_template('admin/edit_newsletter.html',
                            newsletter = newsletter,
                            form = form)
