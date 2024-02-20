@@ -85,26 +85,37 @@ def edit_product(id):
     categories = getAllCategories()
     return render_template('admin/edit_product.html', product=product, categories=categories)
 
-@productBluePrint.route('/add_category', methods=['POST'])
-def add_category():
-    category_name = request.form.get('category_name')
-    description = request.form.get('description')
-    addCategory(category_name, description)
-    flash('Category added successfully!')
-    return redirect(url_for('.admin_catalog'))
 
-@productBluePrint.route('/delete_category/<int:id>', methods=['POST'])
+@productBluePrint.route('/add_category', methods=['GET', 'POST'])
+def add_category():
+    if request.method == 'POST':
+        category_name = request.form.get('category_name')
+        description = request.form.get('description')
+        addCategory(category_name, description)
+        flash('Category added successfully!')
+        return redirect(url_for('.admin_catalog'))
+    return render_template('admin/add_category.html')
+
+
+@productBluePrint.route('/delete_category/<int:id>', methods=['GET', 'POST'])
 def delete_category(id):
-    if deleteCategory(id):
-        flash('Category deleted successfully!')
+    if request.method == 'POST':
+        if deleteCategory(id):
+            flash('Category deleted successfully!')
+            return redirect(url_for('.admin_catalog'))
+        else:
+            flash('Error deleting category.')
+            return redirect(url_for('.admin_catalog'))
     else:
-        flash('Error deleting category.')
-    return redirect(url_for('.admin_catalog'))
+        category = getCategory(id)
+        return render_template('admin/confirm_delete_category.html', category=category)
+
 
 @productBluePrint.route('/confirm_delete_category/<int:id>', methods=['GET'])
 def confirm_delete_category(id):
     category = getCategory(id)
     return render_template('admin/confirm_delete_category.html', category=category)
+
 
 @productBluePrint.route('/edit_category/<int:id>', methods=['GET', 'POST'])
 def edit_category(id):

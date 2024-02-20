@@ -1,0 +1,18 @@
+{% extends "baseTemplate.html" %}
+{% block maincontent %}
+<div class="container">
+    <h2>Edit Category</h2>
+    <form action="{{ url_for('product.edit_category', id=category.CategoryID) }}" method="post">
+        <div class="form-group">
+            <label for="category_name">Category Name:</label><br>
+            <input type="text" id="category_name" name="category_name" value="{{ category.CategoryName }}" required><br>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label><br>
+            <textarea id="description" name="description" required>{{ category.Description }}</textarea><br>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+
+    </form>
+</div>
+{% endblock %}

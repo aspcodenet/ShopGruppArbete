@@ -1,4 +1,4 @@
-from flask import Flask, request, current_app
+from flask import Flask, request, current_app, render_template
 from flask_migrate import Migrate
 from flask_security import SQLAlchemyUserDatastore, Security
 from models import db, User, Role, seedData
@@ -49,6 +49,7 @@ def before_request():
         if not (temp_admin_access or current_app.config.get('TEMP_ADMIN_ACCESS', False)):
             return "Access Denied", 403
 
+
 if __name__  == "__main__":
-    app.run()
+    app.run(debug=True)
     

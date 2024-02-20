@@ -21,7 +21,8 @@
                 </span>
                 <span>
                     <a href="{{ url_for('product.edit_category', id=category.CategoryID) }}" class="btn btn-outline-primary btn-sm">Edit <i class="fa fa-pencil"></i></a>
-                    <button class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteCategoryModal{{ category.CategoryID }}">Delete <i class="fa fa-trash"></i></button>
+                    <a href="{{ url_for('product.delete_category', id=category.CategoryID) }}" class="btn btn-outline-danger btn-sm">Delete <i class="fa fa-trash"></i></a>
+
                 </span>
             </div>
 

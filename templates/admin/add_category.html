@@ -1,0 +1,19 @@
+
+{% extends "baseTemplate.html" %}
+
+{% block maincontent %}
+<div class="container">
+    <h2>Create Product Category</h2>
+    <form action="{{ url_for('product.add_category') }}" method="post">
+        <div class="form-group">
+            <label for="category_name">Name:</label><br>
+            <input type="text" id="category_name" name="category_name" required><br>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label><br>
+            <textarea id="description" name="description"></textarea required><br>
+            <input type="submit" value="Create">
+            </div> 
+    </form>
+</div>
+{% endblock  %}
