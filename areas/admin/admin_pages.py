@@ -13,16 +13,17 @@ def admin() -> str:
 
 @admin_blueprint.route('/admin/newsletters')
 def newsletters() -> str:
-    sort_column = request.args.get('sort_column', 'id')
-    sort_order = request.args.get('sort_order', 'asc')
-    page_num = request.args.get('page', 1, type=int)
+    # sort_column = request.args.get('sort_column', 'id')
+    # sort_order = request.args.get('sort_order', 'asc')
+    # page_num = request.args.get('page', 1, type=int)
 
     all_newsletters = get_all_newsletter()
     return render_template('admin/newsletters.html',
-                           newsletters = all_newsletters,
-                           sort_column = sort_column,
-                           sort_order = sort_order,
-                           page_num = page_num)
+                           newsletters = all_newsletters
+                        #    sort_column = sort_column,
+                        #    sort_order = sort_order,
+                        #    page_num = page_num
+                           )
 
 @admin_blueprint.route('/admin/newsletter/new')
 def new_newsletter() -> str:
