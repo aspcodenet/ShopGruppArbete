@@ -21,7 +21,7 @@
 <body>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <ul class=flashes>
+            <ul class="alert">
                 {% for message in messages %}
                     <li>{{ message }}</li>
                 {% endfor %}
@@ -41,13 +41,13 @@
                 <ul class="header-links pull-right">
                     <partial name="_LoginPartial" />
                     {% if not current_user %}
-                    <li><a href="#">Register</a></li>
-                    <li><a href="#">Login</a></li>
+                        <li><a href="#">Register</a></li>
+                        <li><a href="#">Login</a></li>
                     {% else %}
-                    <li><a href="#">Logout</a></li>
+                        <li><a href="#">Logout</a></li>
                     {% endif %}
                     {# {% if 'Admin' in user_roles %} Add when login is implemented#}
-                    <li><a href="{{ url_for('admin.admin') }}">Admin</a></li>
+                        <li><a href="{{ url_for('admin.admin') }}">Admin</a></li>
                     {# {% endif %} #}
                 </ul>
             </div>
