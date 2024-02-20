@@ -47,4 +47,4 @@ def edit_newsletter(newsletter_id: int = None) -> str:
 @admin_blueprint.route('/admin/newsletters/send/<newsletter_id>')
 def send_newsletter(newsletter_id: int) -> str:
     sender(newsletter_id)
-    return redirect(url_for('admin.manage_newsletters'))
+    return redirect(url_for('admin.newsletters'))
