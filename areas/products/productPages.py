@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, current_app, request, redirect, ur
 from flask_security import roles_accepted
 from models import User, db,Subscriber
 from .services import (getCategory, 
+                       getCategoryname,
                        getTrendingCategories, 
                        getProduct, 
                        getTrendingProducts, 
@@ -91,9 +92,14 @@ def add_category():
     if request.method == 'POST':
         category_name = request.form.get('category_name')
         description = request.form.get('description')
-        addCategory(category_name, description)
-        flash('Category added successfully!')
-        return redirect(url_for('.admin_catalog'))
+        existing_category = getCategoryname(category_name)
+        if not existing_category:
+            addCategory(category_name, description)
+            flash('Category added successfully!')
+            return redirect(url_for('.admin_catalog'))
+        else:
+            flash('Category with the same name already exists!', 'error')
+            return redirect(url_for('.admin_catalog'))
     return render_template('admin/add_category.html')
 
 
