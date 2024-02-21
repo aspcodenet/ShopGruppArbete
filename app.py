@@ -66,6 +66,7 @@ def before_request():
         if not (temp_admin_access or current_app.config.get('TEMP_ADMIN_ACCESS', False)):
             return "Access Denied", 403
 
+
 if __name__  == "__main__":
     with app.app_context():
         upgrade()
