@@ -2,6 +2,7 @@ from datetime import datetime
 from flask import flash
 from flask_mail import Message
 from sqlalchemy import select
+from werkzeug.datastructures import ImmutableMultiDict
 
 from extensions import mail
 from models import Newsletter, Subscriber, db
@@ -9,6 +10,23 @@ from models import Newsletter, Subscriber, db
 def get_all_newsletter() -> list[Newsletter]:
     stmt = select(Newsletter)
     return db.session.execute(stmt).scalars().all()
+
+def create_newsletter() -> Newsletter:
+    newsletter = Newsletter()
+    newsletter.subject = 'New subject'
+    newsletter.content = 'New content'
+    newsletter.last_edit = datetime.now()
+    newsletter.is_sent = False
+    db.session.add(newsletter)
+    db.session.commit()
+    return newsletter.id
+
+def update_newsletter(newsletter: Newsletter, edit_newsletter_form: ImmutableMultiDict) -> None:
+    newsletter.subject = edit_newsletter_form['subject']
+    newsletter.content = edit_newsletter_form['content']
+    newsletter.last_edit = datetime.now()
+    db.session.add(newsletter)
+    db.session.commit()
 
 def get_newsletter(newsletter_id: int) -> Newsletter|None:
     if not newsletter_id:
