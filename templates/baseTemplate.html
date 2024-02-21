@@ -19,6 +19,15 @@
     <![endif]-->
 </head>
 <body>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="alert">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
     <!-- HEADER -->
     <header>
         <!-- TOP HEADER -->
@@ -32,11 +41,14 @@
                 <ul class="header-links pull-right">
                     <partial name="_LoginPartial" />
                     {% if not current_user %}
-                    <li><a href="#">Register</a></li>
-                    <li><a href="#">Login</a></li>
+                        <li><a href="#">Register</a></li>
+                        <li><a href="#">Login</a></li>
                     {% else %}
-                    <li><a href="#">Logout</a></li>
+                        <li><a href="#">Logout</a></li>
                     {% endif %}
+                    {# {% if 'Admin' in user_roles %} Add when login is implemented#}
+                        <li><a href="{{ url_for('admin.admin') }}">Admin</a></li>
+                    {# {% endif %} #}
                 </ul>
             </div>
         </div>
@@ -168,18 +180,19 @@
     </div>
     <!-- /SECTION -->
     <!-- NEWSLETTER -->
+    {% if not current_user %}
     <div id="newsletter" class="section">
         <!-- container -->
-        {% if not current_user %}
-        <p>Sign Up for the <strong>NEWSLETTER</strong></p>
-        <form id="newsletterForm">
-            <input id="emailInput" class="input" type="email" placeholder="Enter Your Email">
-            <button class="newsletter-btn" type="submit"><i class="fa fa-envelope"></i> Subscribe</button>
-        </form>
         <div class="container">
             <!-- row -->
             <div class="row">
                 <div class="col-md-12">
+                    <div class="newsletter">
+                        <p>Sign Up for the <strong>NEWSLETTER</strong></p>
+                        <form id="newsletterForm">
+                            <input id="emailInput" class="input" type="email" placeholder="Enter Your Email">
+                            <button class="newsletter-btn" type="submit"><i class="fa fa-envelope"></i> Subscribe</button>
+                        </form>
                         <ul class="newsletter-follow">
                             <li>
                                 <a href="#"><i class="fa fa-facebook"></i></a>
@@ -197,10 +210,10 @@
                     </div>
                 </div>
             </div>
-            <!-- /row -->
-        {% endif %}
         </div>
+        <!-- /row -->
     </div>
+    {% endif %}
     <!-- /NEWSLETTER -->
     <!-- FOOTER -->
     <footer id="footer">
