@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, current_app, request, redirect, ur
 from flask_security import roles_accepted
 from models import User, db,Subscriber
 from .services import (get_products,
-                       getCategory, 
+                       getCategory,
+                       getCategoryname,
                        getTrendingCategories, 
                        getProduct, 
                        getTrendingProducts, 
@@ -136,7 +137,8 @@ def edit_product(id):
     categories = getAllCategories()
     return render_template('admin/edit_product.html', product=product, categories=categories)
 
-@productBluePrint.route('/add_category', methods = ['GET', 'POST'])
+
+@productBluePrint.route('/add_category', methods=['GET', 'POST'])
 def add_category():
     if request.method == 'POST':
         if 'product_name_search' in request.form:
@@ -144,13 +146,20 @@ def add_category():
                                     q = request.form['product_name_search']
                                     )
                                 )
-    category_name = request.form.get('category_name')
-    description = request.form.get('description')
-    addCategory(category_name, description)
-    flash('Category added successfully!')
-    return redirect(url_for('.admin_catalog'))
+        category_name = request.form.get('category_name')
+        description = request.form.get('description')
+        existing_category = getCategoryname(category_name)
+        if not existing_category:
+            addCategory(category_name, description)
+            flash('Category added successfully!')
+            return redirect(url_for('.admin_catalog'))
+        else:
+            flash('Category with the same name already exists!', 'error')
+            return redirect(url_for('.admin_catalog'))
+    return render_template('admin/add_category.html')
 
-@productBluePrint.route('/delete_category/<int:id>', methods = ['GET', 'POST'])
+
+@productBluePrint.route('/delete_category/<int:id>', methods=['GET', 'POST'])
 def delete_category(id):
     if request.method == 'POST':
         if 'product_name_search' in request.form:
@@ -158,11 +167,16 @@ def delete_category(id):
                                     q = request.form['product_name_search']
                                     )
                                 )
-    if deleteCategory(id):
-        flash('Category deleted successfully!')
+        if deleteCategory(id):
+            flash('Category deleted successfully!')
+            return redirect(url_for('.admin_catalog'))
+        else:
+            flash('Error deleting category.')
+            return redirect(url_for('.admin_catalog'))
     else:
-        flash('Error deleting category.')
-    return redirect(url_for('.admin_catalog'))
+        category = getCategory(id)
+        return render_template('admin/confirm_delete_category.html', category=category)
+
 
 @productBluePrint.route('/confirm_delete_category/<int:id>', methods = ['GET', 'POST'])
 def confirm_delete_category(id):
@@ -174,6 +188,7 @@ def confirm_delete_category(id):
                                 )
     category = getCategory(id)
     return render_template('admin/confirm_delete_category.html', category=category)
+
 
 @productBluePrint.route('/edit_category/<int:id>', methods=['GET', 'POST'])
 def edit_category(id):

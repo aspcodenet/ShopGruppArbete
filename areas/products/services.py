@@ -8,6 +8,9 @@ def getTrendingCategories():
 def getCategory(id):
     return Category.query.filter(Category.CategoryID ==id).first()
 
+def getCategoryname(name):
+    return Category.query.filter_by(CategoryName=name).first()
+
 def getProduct(id):
     return Product.query.filter(Product.ProductID ==id).first()
 
