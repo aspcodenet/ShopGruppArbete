@@ -1,12 +1,17 @@
 {% extends "baseTemplate.html" %}
 {% block maincontent %}
+<a href="{{ url_for('admin.admin') }}">Return to admin</a>
 <h1>Newsletters</h1>
-<table class="table">
+<table class="table" id="newsletters-list">
     <tr>
-        <th>#</th>
-        <th>Subject</th>
-        <th>Last edit</th>
-        <th class="text-center">Sent</th>
+        <th onclick="sortTable(0)">#
+            <i class="fa fa-arrows-v" aria-hidden="true"></i></th>
+        <th onclick="sortTable(1)">Subject
+            <i class="fa fa-arrows-v" aria-hidden="true"></i></th>
+        <th onclick="sortTable(2)">Last edit
+            <i class="fa fa-arrows-v" aria-hidden="true"></i></th>
+        <th onclick="sortTable(3)" class="text-center">Sent
+            <i class="fa fa-arrows-v" aria-hidden="true"></i></th>
         <th class="text-center">Edit</th>
         <th class="text-center">Send</th>
     </tr>
@@ -38,4 +43,7 @@
     {% endfor %}
 </table>
 <a href="{{ url_for('admin.new_newsletter') }}" class="button">New newsletter</a>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/newsletter.js') }}"></script>
 {% endblock %}

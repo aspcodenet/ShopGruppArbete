@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html" %}
 {% from "_formhelpers.html" import render_field %}
 {% block maincontent %}
-<a href="{{ url_for('admin.manage_newsletters') }}">Return to newsletters</a>
+<a href="{{ url_for('admin.newsletters') }}">Return to newsletters</a>
 <h1>Edit newsletter #{{ newsletter.id }}</h1>
 
 <form action="" method="post">

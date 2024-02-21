@@ -12,10 +12,18 @@ def admin() -> str:
     return render_template('admin/admin.html')
 
 @admin_blueprint.route('/admin/newsletters')
-def manage_newsletters() -> str:
+def newsletters() -> str:
+    # sort_column = request.args.get('sort_column', 'id')
+    # sort_order = request.args.get('sort_order', 'asc')
+    # page_num = request.args.get('page', 1, type=int)
+
     all_newsletters = get_all_newsletter()
     return render_template('admin/newsletters.html',
-                           newsletters = all_newsletters)
+                           newsletters = all_newsletters
+                        #    sort_column = sort_column,
+                        #    sort_order = sort_order,
+                        #    page_num = page_num
+                           )
 
 @admin_blueprint.route('/admin/newsletter/new')
 def new_newsletter() -> str:
@@ -33,10 +41,6 @@ def edit_newsletter(newsletter_id: int = None) -> str:
 
     form = EditNewsletter(subject = newsletter.subject,
                           content = newsletter.content)
-    # if form.validate_on_submit():
-    #     flash('Email updated!', 'info')
-    # else:
-    #     flash('Email not updated!', 'warning')
     return render_template('admin/edit_newsletter.html',
                            newsletter = newsletter,
                            form = form)
@@ -44,4 +48,4 @@ def edit_newsletter(newsletter_id: int = None) -> str:
 @admin_blueprint.route('/admin/newsletters/send/<newsletter_id>')
 def send_newsletter(newsletter_id: int) -> str:
     sender(newsletter_id)
-    return redirect(url_for('admin.manage_newsletters'))
+    return redirect(url_for('admin.newsletters'))
