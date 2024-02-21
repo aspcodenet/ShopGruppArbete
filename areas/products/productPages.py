@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, current_app, request, redirect, url_for, flash
 from flask_security import roles_accepted
 from models import User, db,Subscriber
-from .services import (getCategory, 
+from .services import (get_products,
+                       getCategory, 
                        getTrendingCategories, 
-                       getProduct, 
+                       getProduct,
                        getTrendingProducts, 
                        getAllCategories, 
                        addCategory, 
@@ -40,7 +41,6 @@ def admin_catalog():
     categories = getAllCategories()
 
     return render_template('admin/catalog.html', categories=categories)
-
 
 @productBluePrint.route('/add_product', methods=['GET', 'POST'])
 def add_product():
@@ -118,3 +118,8 @@ def edit_category(id):
             flash('Error updating category.')
         return redirect(url_for('.admin_catalog'))
     return render_template('admin/edit_category.html', category=category)
+
+@productBluePrint.route('/products')
+def search_products():
+    search_word = request.args.get('q', '')
+    searched_products = get_products(search_word)
