@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from models import db, Category, Product
 
 def getTrendingCategories():
@@ -64,4 +66,7 @@ def deleteProduct(id):
     if product:
         db.session.delete(product)
         db.session.commit()
-        
+
+def get_products(search_word: str) -> list[Product]:
+    stmt = select(Product).where(Product.ProductName.like(f'%{search_word}%'))
+    return db.session.execute(stmt).scalars().all()

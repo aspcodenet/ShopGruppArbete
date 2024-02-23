@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, current_app, request, redirect, url_for, flash
 from flask_security import roles_accepted
 from models import User, db,Subscriber
-from .services import (getCategory, 
+from .services import (get_products,
+                       getCategory,
                        getCategoryname,
                        getTrendingCategories, 
                        getProduct, 
@@ -17,24 +18,52 @@ from .services import (getCategory,
 
 productBluePrint = Blueprint('product', __name__)
 
-@productBluePrint.route('/')
+@productBluePrint.route('/', methods = ['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
+    
     trendingCategories = getTrendingCategories()
     trendingProducts = getTrendingProducts()
     return render_template('products/index.html', trendingCategories=trendingCategories, products=trendingProducts)
 
-@productBluePrint.route('/category/<id>')
+@productBluePrint.route('/category/<id>', methods = ['GET', 'POST'])
 def category(id):
+    if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
+
     category = getCategory(id)
     return render_template('products/category.html', category=category)
 
-@productBluePrint.route('/product/<id>')
+@productBluePrint.route('/product/<id>', methods = ['GET', 'POST'])
 def product(id):
+    if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
+
     product = getProduct(id)
     return render_template('products/product.html', product=product)
 
-@productBluePrint.route('/admin/catalog')
+@productBluePrint.route('/admin/catalog', methods = ['GET', 'POST'])
 def admin_catalog():
+    if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
+
     if not current_app.config.get('TEMP_ADMIN_ACCESS', False):
         return "Access Denied", 403
     
@@ -46,6 +75,11 @@ def admin_catalog():
 @productBluePrint.route('/add_product', methods=['GET', 'POST'])
 def add_product():
     if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
         product_name = request.form.get('product_name')
         category_id = request.form.get('category_id')
         unit_price = request.form.get('unit_price')
@@ -57,16 +91,28 @@ def add_product():
         categories = getAllCategories()
         return render_template('admin/add_product.html', categories=categories)
 
-@productBluePrint.route('/delete_product/<int:id>', methods=['POST'])
+@productBluePrint.route('/delete_product/<int:id>', methods = ['GET', 'POST'])
 def delete_product(id):
+    if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
     if deleteProduct(id):
         flash('Product deleted successfully!')
     else:
         flash('Error deleting product.')
     return redirect(url_for('.admin_catalog'))
 
-@productBluePrint.route('/confirm_delete_product/<int:id>', methods=['GET'])
+@productBluePrint.route('/confirm_delete_product/<int:id>', methods = ['GET', 'POST'])
 def confirm_delete_product(id):
+    if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
     product = getProduct(id)
     return render_template('admin/confirm_delete_product.html', product=product)
 
@@ -74,6 +120,11 @@ def confirm_delete_product(id):
 def edit_product(id):
     product = getProduct(id)
     if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
         product_name = request.form['product_name']
         category_id = request.form['category_id']
         unit_price = request.form['unit_price']
@@ -90,6 +141,11 @@ def edit_product(id):
 @productBluePrint.route('/add_category', methods=['GET', 'POST'])
 def add_category():
     if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
         category_name = request.form.get('category_name')
         description = request.form.get('description')
         existing_category = getCategoryname(category_name)
@@ -106,6 +162,11 @@ def add_category():
 @productBluePrint.route('/delete_category/<int:id>', methods=['GET', 'POST'])
 def delete_category(id):
     if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
         if deleteCategory(id):
             flash('Category deleted successfully!')
             return redirect(url_for('.admin_catalog'))
@@ -117,8 +178,14 @@ def delete_category(id):
         return render_template('admin/confirm_delete_category.html', category=category)
 
 
-@productBluePrint.route('/confirm_delete_category/<int:id>', methods=['GET'])
+@productBluePrint.route('/confirm_delete_category/<int:id>', methods = ['GET', 'POST'])
 def confirm_delete_category(id):
+    if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
     category = getCategory(id)
     return render_template('admin/confirm_delete_category.html', category=category)
 
@@ -127,6 +194,11 @@ def confirm_delete_category(id):
 def edit_category(id):
     category = getCategory(id)
     if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
         category_name = request.form['category_name']
         description = request.form['description']
         if updateCategory(id, category_name, description):
@@ -135,3 +207,17 @@ def edit_category(id):
             flash('Error updating category.')
         return redirect(url_for('.admin_catalog'))
     return render_template('admin/edit_category.html', category=category)
+
+@productBluePrint.route('/products', methods = ['GET', 'POST'])
+def products():
+    if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
+    search_word = request.args.get('q', '')
+    searched_products = get_products(search_word)
+    return render_template('products/products.html',
+                           products = searched_products,
+                           q = search_word)

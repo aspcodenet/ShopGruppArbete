@@ -3,20 +3,44 @@ from models import User, db,Subscriber
 
 siteBluePrint = Blueprint('site', __name__)
 
-@siteBluePrint.route('/contact')
+@siteBluePrint.route('/contact', methods = ['GET', 'POST'])
 def contact() -> str:
+     if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('product.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
      return render_template('site/contact.html')
 
-@siteBluePrint.route('/terms')
+@siteBluePrint.route('/terms', methods = ['GET', 'POST'])
 def terms() -> str:
+     if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('product.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
      return render_template('site/terms.html')
 
-@siteBluePrint.route('/about')
+@siteBluePrint.route('/about', methods = ['GET', 'POST'])
 def about() -> str:
+     if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('product.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
      return render_template('site/about.html')
 
-@siteBluePrint.route('/subscribe', methods=['POST'])
+@siteBluePrint.route('/subscribe', methods = ['GET', 'POST'])
 def subscribe():
+    if request.method == 'POST':
+        if 'product_name_search' in request.form:
+            return redirect(url_for('product.products',
+                                    q = request.form['product_name_search']
+                                    )
+                                )
     email = request.form.get('email')
     #print(email)
     existing_subscriber = Subscriber.query.filter_by(email=email).first()
