@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, current_app, request, redirect, url_for, flash
 from flask_security import roles_accepted
-from models import User, db,Subscriber
+from models import User, db, Subscriber
 from .services import (getCategory, 
                        getCategoryname,
                        getTrendingCategories, 
@@ -12,8 +12,7 @@ from .services import (getCategory,
                        updateCategory, 
                        updateProduct, 
                        deleteCategory, 
-                       deleteProduct, 
-                       )
+                       deleteProduct)
 
 productBluePrint = Blueprint('product', __name__)
 
@@ -38,10 +37,16 @@ def admin_catalog():
     if not current_app.config.get('TEMP_ADMIN_ACCESS', False):
         return "Access Denied", 403
     
+    sort_by = request.args.get('sort_by', 'ProductName')  # Default sorting by ProductName
+    sort_order = request.args.get('sort_order', 'asc')    # Default sorting order: ascending
+    
     categories = getAllCategories()
-
-    return render_template('admin/catalog.html', categories=categories)
-
+    
+    # Sort products within each category based on the selected criteria
+    for category in categories:
+        category.Products.sort(key=lambda x: getattr(x, sort_by), reverse=(sort_order == 'desc'))
+    
+    return render_template('admin/catalog.html', categories=categories, sort_by=sort_by, sort_order=sort_order)
 
 @productBluePrint.route('/add_product', methods=['GET', 'POST'])
 def add_product():

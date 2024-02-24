@@ -22,7 +22,6 @@
                 <span>
                     <a href="{{ url_for('product.edit_category', id=category.CategoryID) }}" class="btn btn-outline-primary btn-sm">Edit <i class="fa fa-pencil"></i></a>
                     <a href="{{ url_for('product.delete_category', id=category.CategoryID) }}" class="btn btn-outline-danger btn-sm">Delete <i class="fa fa-trash"></i></a>
-
                 </span>
             </div>
 
@@ -31,9 +30,9 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Product Name</th>
-                                <th>Price</th>
-                                <th>Stock</th>
+                                <th><a href="{{ url_for('.admin_catalog', sort_by='ProductName', sort_order=(sort_by == 'ProductName' and (sort_order == 'asc' and 'desc' or 'asc')) or 'asc') }}">Product Name</a></th>
+                                <th><a href="{{ url_for('.admin_catalog', sort_by='UnitPrice', sort_order=(sort_by == 'UnitPrice' and (sort_order == 'asc' and 'desc' or 'asc')) or 'asc') }}">Price</a></th>
+                                <th><a href="{{ url_for('.admin_catalog', sort_by='UnitsInStock', sort_order=(sort_by == 'UnitsInStock' and (sort_order == 'asc' and 'desc' or 'asc')) or 'asc') }}">Stock</a></th>
                                 <th>Actions</th>
                             </tr>
                         </thead>

@@ -65,3 +65,7 @@ def deleteProduct(id):
         db.session.delete(product)
         db.session.commit()
         
+
+def toggle_sort(attribute, current_order):
+    # Toggles sorting order between ascending and descending
+    return 'desc' if current_order == 'asc' else 'asc'
