@@ -32,6 +32,8 @@ def product(id):
     product = getProduct(id)
     return render_template('products/product.html', product=product)
 
+import math
+
 @productBluePrint.route('/admin/catalog')
 def admin_catalog():
     if not current_app.config.get('TEMP_ADMIN_ACCESS', False):
@@ -39,14 +41,63 @@ def admin_catalog():
     
     sort_by = request.args.get('sort_by', 'ProductName')  # Default sorting by ProductName
     sort_order = request.args.get('sort_order', 'asc')    # Default sorting order: ascending
+    page = request.args.get('page', 1, type=int)          # Current page number
     
     categories = getAllCategories()
+    
+    # Pagination
+    per_page = 10  # Number of products per page
     
     # Sort products within each category based on the selected criteria
     for category in categories:
         category.Products.sort(key=lambda x: getattr(x, sort_by), reverse=(sort_order == 'desc'))
     
-    return render_template('admin/catalog.html', categories=categories, sort_by=sort_by, sort_order=sort_order)
+    # Paginate products for each category
+    for category in categories:
+        total_products = len(category.Products)
+        num_pages = math.ceil(total_products / per_page)
+        category.page = page
+        category.num_pages = num_pages
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        category.Products = category.Products[start_index:end_index]
+        # Pass sorting parameters to each category
+        category.sort_by = sort_by
+        category.sort_order = sort_order
+    
+    return render_template('admin/catalog.html', categories=categories, sort_by=sort_by, sort_order=sort_order, page=page)
+
+
+# @productBluePrint.route('/admin/catalog')
+# def admin_catalog():
+#     if not current_app.config.get('TEMP_ADMIN_ACCESS', False):
+#         return "Access Denied", 403
+    
+#     sort_by = request.args.get('sort_by', 'ProductName')  # Default sorting by ProductName
+#     sort_order = request.args.get('sort_order', 'asc')    # Default sorting order: ascending
+#     page = request.args.get('page', 1, type=int)          # Current page number
+    
+#     categories = getAllCategories()
+    
+#     # Pagination
+#     per_page = 10  # Number of products per page
+    
+#     # Sort products within each category based on the selected criteria
+#     for category in categories:
+#         category.Products.sort(key=lambda x: getattr(x, sort_by), reverse=(sort_order == 'desc'))
+    
+#     # Paginate products for each category
+#     for category in categories:
+#         total_products = len(category.Products)
+#         num_pages = math.ceil(total_products / per_page)
+#         category.page = page
+#         category.num_pages = num_pages
+#         start_index = (page - 1) * per_page
+#         end_index = start_index + per_page
+#         category.Products = category.Products[start_index:end_index]
+    
+#     return render_template('admin/catalog.html', categories=categories, sort_by=sort_by, sort_order=sort_order, page=page)
+
 
 @productBluePrint.route('/add_product', methods=['GET', 'POST'])
 def add_product():
