@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask import flash, render_template, redirect, url_for
 
-from .admin_services import create_newsletter, get_all_newsletter, get_newsletter, update_newsletter
+from .admin_services import create_newsletter, get_all_newsletter, get_newsletter, update_newsletter,get_newsletters_for_page
 from .admin_services import send_newsletter as sender
 from views.forms import EditNewsletter
 
@@ -17,19 +17,31 @@ def admin() -> str:
                                 )
     return render_template('admin/admin.html')
 
-@admin_blueprint.route('/admin/newsletters', methods = ['GET', 'POST'])
-def newsletters() -> str:
+# @admin_blueprint.route('/admin/newsletters', methods = ['GET', 'POST'])
+# def newsletters() -> str:
+#     if request.method == 'POST':
+#         if 'product_name_search' in request.form:
+#             return redirect(url_for('product.products',
+#                                     q = request.form['product_name_search']
+#                                     )
+#                                 )
+
+#     all_newsletters = get_all_newsletter()
+#     return render_template('admin/newsletters.html',
+#                            newsletters = all_newsletters
+#                            )
+@admin_blueprint.route('/admin/newsletters', methods=['GET', 'POST'])
+def newsletters():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10 
+
     if request.method == 'POST':
         if 'product_name_search' in request.form:
-            return redirect(url_for('product.products',
-                                    q = request.form['product_name_search']
-                                    )
-                                )
+            return redirect(url_for('product.products', q=request.form['product_name_search']))
 
-    all_newsletters = get_all_newsletter()
-    return render_template('admin/newsletters.html',
-                           newsletters = all_newsletters
-                           )
+    newsletters = get_newsletters_for_page(page, per_page)
+
+    return render_template('admin/newsletters.html', newsletters=newsletters)
 
 @admin_blueprint.route('/admin/newsletter/new', methods = ['GET', 'POST'])
 def new_newsletter() -> str:
