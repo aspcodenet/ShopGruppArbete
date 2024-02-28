@@ -16,6 +16,7 @@ from sqlalchemy.orm import (DeclarativeBase,
                             relationship
                             )
 from typing import List
+import random, os
 
 class Base(DeclarativeBase):
     pass
@@ -44,7 +45,8 @@ class Product(db.Model):
     UnitsOnOrder: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
     ReorderLevel: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
     Discontinued: Mapped[int] = mapped_column(db.Boolean, unique=False, nullable=False)
-
+    Image: Mapped[str] = mapped_column(db.String(255), unique=False, nullable=True)
+    Description: Mapped[str] = mapped_column(db.String(200), unique=False, nullable=True)
 
 class Role(db.Model, RoleMixin):
     __tablename__ = "roles"
@@ -230,7 +232,8 @@ def addProduct(db: SQLAlchemy,
                units_in_stock: int,
                units_on_order: int,
                reorder_level: int,
-               discontinued: int
+               discontinued: int,
+               description: str = None
                ) -> None:
     stmt = select(Product).where(Product.ProductName == name)
     a = db.session.execute(stmt).first()
@@ -245,6 +248,9 @@ def addProduct(db: SQLAlchemy,
         c.UnitsOnOrder = units_on_order
         c.ReorderLevel = reorder_level
         c.Discontinued = discontinued
+        c.Description = description
+        images = ['img/Products/product_1.png','img/Products/product_3.png','img/Products/product_5.png','img/Products/product_0000001212.png','img/Products/product_30057741.png','img/Products/product_80025566.png','img/Products/product_AA666712.png','img/Products/product06.png','img/Products/product08.png']
+        c.Image = random.choice(images)
 
         db.session.add(c)
         db.session.commit()

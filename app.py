@@ -1,13 +1,14 @@
-from flask import Flask, request, current_app
-from flask_migrate import Migrate
+from flask import Flask, request, current_app, render_template
+from flask_migrate import Migrate, upgrade
 from flask_security import SQLAlchemyUserDatastore, Security
-from models import db, User, Role, seedData
+from models import db, User, Role, seedData, Product, Category
 from areas.products.productPages import productBluePrint
 from areas.site.sitePages import siteBluePrint
 from dotenv import load_dotenv
 import click
 from flask.cli import with_appcontext
 from os import environ
+
 
 load_dotenv()
 
@@ -40,6 +41,27 @@ def seed_db_command():
 
 app.cli.add_command(seed_db_command)
 
+# Produkt
+@app.route('/')
+def index():
+    products = Product.query.all()
+    categories = Category.query.all()
+    return render_template('products/index.html', products=products, categories=categories)
+
+@app.route('/product/<int:product_id>')
+def show_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    return render_template('product.html',product=product)
+    
+
+@app.route('/category/<int:category_id>/product/<int:product_id>')
+def show_product_in_category(category_id, product_id):
+    category = Category.query.get_or_404(category_id)
+    product = Product.query.get_or_404(product_id)
+    return render_template('product.html', category=category, product=product)
+
+
+
 # Temporary check for admin access
 # This is a placeholder, should be replaced with actual authentication logic
 @app.before_request
@@ -50,5 +72,9 @@ def before_request():
             return "Access Denied", 403
 
 if __name__  == "__main__":
+    with app.app_context():
+        upgrade()
+        seedData(app)
+    
     app.run()
     
