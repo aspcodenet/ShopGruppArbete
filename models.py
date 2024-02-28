@@ -1,46 +1,100 @@
-from flask_sqlalchemy import SQLAlchemy
 import barnum
 from datetime import datetime
-from flask_security import Security, SQLAlchemyUserDatastore, auth_required, hash_password
-from flask_security.models import fsqla_v3 as fsqla
+from flask import Flask
+from flask_security import (auth_required,
+                            hash_password,
+                            RoleMixin,
+                            Security,
+                            SQLAlchemyUserDatastore,
+                            UserMixin
+                            )
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func, select
+from sqlalchemy.orm import (DeclarativeBase,
+                            Mapped,
+                            mapped_column,
+                            relationship
+                            )
+from typing import List
+import random, os
 
-db = SQLAlchemy()
-
-
-fsqla.FsModels.set_db_info(db)
-
-class Role(db.Model, fsqla.FsRoleMixin):
+class Base(DeclarativeBase):
     pass
 
-class User(db.Model, fsqla.FsUserMixin):
-    pass
-
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+db = SQLAlchemy(model_class=Base)
 
 class Category(db.Model):
     __tablename__= "Categories"
-    CategoryID = db.Column(db.Integer, primary_key=True)
-    CategoryName = db.Column(db.String(80), unique=False, nullable=False)
-    Description = db.Column(db.String(80), unique=False, nullable=False)
-    Products = db.relationship('Product', backref='Category',lazy=True)
-    
+    CategoryID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    CategoryName: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
+    Description: Mapped[str] = mapped_column(db.String(80), unique=False, nullable=False)
+    Image: Mapped[str] = mapped_column(db.String(100), unique=True, nullable=True)
+
+    Products: Mapped[List['Product']] = relationship('Product', backref='Category',lazy=True)
+
+
 class Product(db.Model):
     __tablename__= "Products"
-    ProductID = db.Column(db.Integer, primary_key=True)
-    ProductName = db.Column(db.String(40), unique=False, nullable=False)
-    SupplierID = db.Column(db.Integer, unique=False, nullable=False)
-    CategoryId = db.Column(db.Integer, db.ForeignKey('Categories.CategoryID'), nullable=False)
-    QuantityPerUnit = db.Column(db.String(20), unique=False, nullable=False)
-    UnitPrice = db.Column(db.Float, unique=False, nullable=False)
-    UnitsInStock = db.Column(db.Integer, unique=False, nullable=False)
-    UnitsOnOrder = db.Column(db.Integer, unique=False, nullable=False)
-    ReorderLevel = db.Column(db.Integer, unique=False, nullable=False)
-    Discontinued = db.Column(db.Boolean, unique=False, nullable=False)
+    ProductID: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    ProductName: Mapped[str] = mapped_column(db.String(40), unique=False, nullable=False)
+    SupplierID: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    CategoryId: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('Categories.CategoryID'), nullable=False)
+    QuantityPerUnit: Mapped[str] = mapped_column(db.String(20), unique=False, nullable=False)
+    UnitPrice: Mapped[float] = mapped_column(db.Float, unique=False, nullable=False)
+    UnitsInStock: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    UnitsOnOrder: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    ReorderLevel: Mapped[int] = mapped_column(db.Integer, unique=False, nullable=False)
+    Discontinued: Mapped[int] = mapped_column(db.Boolean, unique=False, nullable=False)
+    Image: Mapped[str] = mapped_column(db.String(255), unique=False, nullable=True)
+    Description: Mapped[str] = mapped_column(db.String(200), unique=False, nullable=True)
+
+class Role(db.Model, RoleMixin):
+    __tablename__ = "roles"
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(50), unique=True, nullable=True)
 
 
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    active: Mapped[bool] = mapped_column(db.Boolean())
+    email: Mapped[str] = mapped_column(db.String(255), unique=True)
+    email_confirmed_at: Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
+    password: Mapped[str] = mapped_column(db.String(255))
+    first_name: Mapped[str] = mapped_column(db.String(100))
+    last_name: Mapped[str] = mapped_column(db.String(100))
+    fs_uniquifier: Mapped[str] = mapped_column(db.String(255), unique=True)
+
+    roles: Mapped[List['Role']] = relationship('Role', secondary='user_roles', backref='User')
 
 
-def seedData(app):
+class UserRole(db.Model):
+    __tablename__ = 'user_roles'
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey(User.id))
+    RoleID: Mapped[int] = mapped_column(db.Integer, db.ForeignKey(Role.id))
+
+
+class Newsletter(db.Model):
+    __tablename__ = 'Newsletters'
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    subject: Mapped[str] = mapped_column(db.String(100))            # Mirrors email subject line
+    content: Mapped[str] = mapped_column(db.String(2000))           # Mirrors email text content
+    last_edit: Mapped[datetime] = mapped_column(db.DateTime)
+    is_sent: Mapped[bool] = mapped_column(db.Boolean())
+    date_sent: Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
+
+
+class Subscriber(db.Model):
+    __tablename__ = 'Subscribers'
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    email: Mapped[str] = mapped_column(db.String(255), unique=True)
+    active: Mapped[bool] = mapped_column(db.Boolean())
+
+
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+
+def seedData(app: Flask):
     app.security = Security(app, user_datastore)
     app.security.datastore.db.create_all()
     if not app.security.datastore.find_role("Admin"):
@@ -48,14 +102,15 @@ def seedData(app):
     if not app.security.datastore.find_role("Staff"):
         app.security.datastore.create_role(name="Staff")
     if not app.security.datastore.find_user(email="admin@systementor.se"):
-        app.security.datastore.create_user(email="admin@systementor.se", password=hash_password("password"),roles=["Admin"])
+        first_name, last_name = barnum.create_name()
+        app.security.datastore.create_user(email="admin@systementor.se", password=hash_password("password"),roles=["Admin"], first_name = first_name, last_name = last_name, email_confirmed_at = datetime.now())
     if not app.security.datastore.find_user(email="worker1@systementor.se"):
-        app.security.datastore.create_user(email="worker1@systementor.se", password=hash_password("password"),roles=["Staff"])
+        first_name, last_name = barnum.create_name()
+        app.security.datastore.create_user(email="worker1@systementor.se", password=hash_password("password"),roles=["Staff"], first_name = first_name, last_name = last_name, email_confirmed_at = datetime.now())
     if not app.security.datastore.find_user(email="worker2@systementor.se"):
-        app.security.datastore.create_user(email="worker2@systementor.se", password=hash_password("password"),roles=["Staff"])
+        first_name, last_name = barnum.create_name()
+        app.security.datastore.create_user(email="worker2@systementor.se", password=hash_password("password"),roles=["Staff"], first_name = first_name, last_name = last_name, email_confirmed_at = datetime.now())
     app.security.datastore.db.session.commit()
-
-
 
     addCat(db,  "Beverages",	"Soft drinks, coffees, teas, beers, and ales")        
     addCat(db,  "Condiments",	"Sweet and savory sauces, relishes, spreads, and seasonings")        
@@ -144,68 +199,77 @@ def seedData(app):
     addProduct(db,"Original Frankfurter grne Soe",	12,2	,"12 boxes",	13.0000	,	32	,	0	,	15	,	0	)
     addProduct(db,"Handdesinfektion",	1,1	,"1",	12.0000	,	2	,	0	,	0	,	0	)
 
+def mapNorthwindCategporyIdToThisDb(db: SQLAlchemy, northwind_category__id: int) -> int|None:
+    name = ""
+    if northwind_category__id == 1:
+        name = "Beverages"
+    if northwind_category__id == 2:
+        name = "Condiments"
+    if northwind_category__id == 3:
+        name = "Confections"
+    if northwind_category__id == 4:
+        name = "Dairy Products"
+    if northwind_category__id == 5:
+        name = "Grains/Cereals"
+    if northwind_category__id == 6:
+        name = "Meat/Poultry"
+    if northwind_category__id == 7:
+        name = "Produce"
+    if northwind_category__id == 8:
+        name = "Seafood"
 
-
-    db.session.commit()
-
-def mapNorthwindCategporyIdToThisDb(db,northwindCategporyId):
-    namn = ""
-    if northwindCategporyId == 1:
-        namn = "Beverages"
-    if northwindCategporyId == 2:
-        namn = "Condiments"
-    if northwindCategporyId == 3:
-        namn = "Confections"
-    if northwindCategporyId == 4:
-        namn = "Dairy Products"
-    if northwindCategporyId == 5:
-        namn = "Grains/Cereals"
-    if northwindCategporyId == 6:
-        namn = "Meat/Poultry"
-    if northwindCategporyId == 7:
-        namn = "Produce"
-    if northwindCategporyId == 8:
-        namn = "Seafood"
-
-    return Category.query.filter_by(CategoryName=namn).first()    
+    stmt = select(Category.CategoryID).where(Category.CategoryName == name)
+    result = db.session.execute(stmt).scalar()  # Use scalar() to get a single value
+    return result
     
 
-def addProduct(db,namn,supplierid, categoryid, quantityperunit,unitprice,unitsinstock,unitsonorder,reorderlevel,discontinued):
-    a =  Product.query.filter_by(ProductName=namn).first()
+def addProduct(db: SQLAlchemy,
+               name: str,
+               supplier_id: int,
+               category_id: int,
+               quantity_per_unit: str,
+               unit_price: float,
+               units_in_stock: int,
+               units_on_order: int,
+               reorder_level: int,
+               discontinued: int,
+               description: str = None
+               ) -> None:
+    stmt = select(Product).where(Product.ProductName == name)
+    a = db.session.execute(stmt).first()
     if a == None:
         c = Product()
-        c.ProductName = namn
-        c.SupplierID = supplierid
-        c.QuantityPerUnit = quantityperunit
-        c.UnitPrice = unitprice
-        c.UnitsInStock = unitsinstock
-        c.UnitsOnOrder = unitsonorder
-        c.ReorderLevel = reorderlevel
+        c.ProductName = name
+        c.SupplierID = supplier_id
+        c.CategoryId = mapNorthwindCategporyIdToThisDb(db, category_id)
+        c.QuantityPerUnit = quantity_per_unit
+        c.UnitPrice = unit_price
+        c.UnitsInStock = units_in_stock
+        c.UnitsOnOrder = units_on_order
+        c.ReorderLevel = reorder_level
         c.Discontinued = discontinued
+        c.Description = description
+        images = ['img/Products/product_1.png','img/Products/product_3.png','img/Products/product_5.png','img/Products/product_0000001212.png','img/Products/product_30057741.png','img/Products/product_80025566.png','img/Products/product_AA666712.png','img/Products/product06.png','img/Products/product08.png']
+        c.Image = random.choice(images)
 
-        cat = mapNorthwindCategporyIdToThisDb(db,categoryid)
-        cat.Products.append(c)
-        db.session.commit()
-
-
-
-def addCat(db,namn,descr):
-    a =  Category.query.filter_by(CategoryName=namn).first()
-    if a ==  None:
-        c = Category()
-        c.CategoryName = namn
-        c.Description = descr
         db.session.add(c)
         db.session.commit()
 
+def addCat(db: SQLAlchemy, name: str, description: str) -> None:
+    stmt = select(Category).where(Category.CategoryName == name)
+    a = db.session.execute(stmt).first()
+    if a ==  None:
+        c = Category()
+        c.CategoryName = name
+        c.Description = description
+        db.session.add(c)
+        db.session.commit()
 
-
-def AddRoleIfNotExists(namn:str): 
-    if Role.query.filter(Role.name == namn).first():
+def AddRoleIfNotExists(name: str) -> None:
+    stmt = select(Role).where(Role.name == name)
+    if db.session.execute(stmt).first():
         return
     role = Role()
-    role.name = namn
+    role.name = name
     db.session.add(role)
     db.session.commit()
-
-

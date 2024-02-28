@@ -10,7 +10,8 @@
         <div class="col-md-4 col-xs-6">
             <div class="shop">
                 <div class="shop-img" style="height:200px">
-                 </div>
+                    <img src="{{ cat.Image }}" alt="">
+                </div>
                 <div class="shop-body">
                     <h3>{{ cat.CategoryName }}<br>Collection</h3>
                     <a href="{{ url_for('product.category', id=cat.CategoryID)  }}" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
@@ -54,14 +55,17 @@
                                 <div>{{ product.UnitPrice }}</div></div>
             
                             <div class="information">
-            
-                                <div class="name">{{ product.ProductName }}</div>
-            
+                                <div class="name">
+                                    <a href="{{ url_for('show_product_in_category', category_id=product.Category.CategoryID, product_id=product.ProductID) }}">{{ product.ProductName }}</a>
+                                </div>
                                 <div class="store">@Model.Color, @Model.Color</div>
             
                                 <a href="#" class="button">Purchase Product</a>
-            
+
                             </div> <!-- end information -->
+
+        
+
                         </div> <!-- end container -->
                     </div>
                     
